@@ -16,7 +16,7 @@ import java.util.Date;
 /**
  * @version v2.3
  * @ClassName:WarnMailUtil.java
- * @author: http://www.wgstart.com
+ * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: WarnMailUtil.java
  * @Copyright: 2017-2021 wgcloud. All rights reserved.
@@ -25,7 +25,7 @@ public class WarnMailUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(WarnMailUtil.class);
 
-    public static final String content_suffix = "<p><a target='_blank' href='http://www.wgstart.com'>WGCLOUD监控系统</a>敬上";
+    public static final String content_suffix = "<p><a target='_blank' href='http://www.bigdatacd.com'>大数据监控系统</a>敬上";
 
     private static LogInfoService logInfoService = (LogInfoService) ApplicationContextHelper.getBean(LogInfoService.class);
     private static MailConfig mailConfig = (MailConfig) ApplicationContextHelper.getBean(MailConfig.class);
@@ -158,6 +158,84 @@ public class WarnMailUtil {
         return false;
     }
 
+    private static String makeEmail(String email){
+        if(email == null || email.length()<5){
+            return StaticKeys.mailSet.getToMail();
+        }
+        if(StaticKeys.mailSet == null || StaticKeys.mailSet.getToMail() == null || StaticKeys.mailSet.getToMail().length() < 5){
+            return email;
+        }
+        return StaticKeys.mailSet.getToMail()+";"+email;
+    }
+
+    /**
+     * 数据不正常发送告警邮件
+     *
+     * @param tableInfo 主机信息
+     * @return
+     */
+    public static boolean sendDbTableDataCountError(DbInfo dbInfo,DbTable tableInfo) {
+        if (StaticKeys.mailSet == null) {
+            return false;
+        }
+        MailSet mailSet = StaticKeys.mailSet;
+        int count = tableInfo.getWarnCount();
+        if(count > 10 && count%5 != 0)return true;
+
+            try {
+                String title = "表数据异常警告：数据库=" + dbInfo.getAliasName()+";表="+ tableInfo.getRemark();
+                String commContent = "表数据存在异常，请检查数据库=" + dbInfo.getAliasName()+";表="+ tableInfo.getRemark()+"（"+tableInfo.getTableName()+"）" + "，<br/>备注：where=" + tableInfo.getWhereVal()+",<br/>sql="+tableInfo.getSql()
+                        + "，<br/>累计错误次数="+tableInfo.getWarnCount()+"<br/>";
+                if(tableInfo.getWarnCountL() != null){
+                    if(tableInfo.getTableCount() < tableInfo.getWarnCountL()){
+                        //报警
+                        commContent+="当前查询值为:"+tableInfo.getTableCount() +";小于报警阀值:"+tableInfo.getWarnCountL();
+                    }
+
+                }
+                if(tableInfo.getWarnCountH() != null){
+                    if(tableInfo.getTableCount() > tableInfo.getWarnCountH()){
+                        //报警
+                        commContent+="当前查询值为:"+tableInfo.getTableCount() +";大于报警阀值:"+tableInfo.getWarnCountH();
+                    }
+
+                }
+                //发送邮件
+                sendMail(makeEmail(tableInfo.getWarnEmail()), title, commContent);
+                //记录发送信息
+                logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
+            } catch (Exception e) {
+                logger.error("表数据异常警告邮件失败：", e);
+                logInfoService.save("表数据异常警告邮件错误", e.toString(), StaticKeys.LOG_ERROR);
+            }
+
+
+        return true;
+    }
+
+    public static boolean sendDbTableDataCountRight(DbInfo dbInfo,DbTable tableInfo) {
+        if (StaticKeys.mailSet == null) {
+            return false;
+        }
+        MailSet mailSet = StaticKeys.mailSet;
+        try {
+            String title = "表数据恢复正常：数据库=" + dbInfo.getAliasName()+";表="+tableInfo.getRemark();
+            String commContent = "表数据恢复正常:数据库=" + dbInfo.getAliasName()+";表="+ tableInfo.getRemark()+"（"+tableInfo.getTableName()+"）" + "，<br/>备注：where=" + tableInfo.getWhereVal()+"<br/>sql="+tableInfo.getSql()
+                    + "<br/>";
+            //发送邮件
+            sendMail(makeEmail(tableInfo.getWarnEmail()), title, commContent);
+            //记录发送信息
+            logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
+        } catch (Exception e) {
+            logger.error("表数据恢复正常邮件失败：", e);
+            logInfoService.save("表数据恢复正常邮件错误", e.toString(), StaticKeys.LOG_ERROR);
+        }
+
+
+        return false;
+    }
+
+
     /**
      * 主机下线发送告警邮件
      *
@@ -270,7 +348,7 @@ public class WarnMailUtil {
                 email.setSSL(true);
             }
             email.setAuthenticator(new DefaultAuthenticator(StaticKeys.mailSet.getFromMailName(), StaticKeys.mailSet.getFromPwd()));
-            email.setFrom(StaticKeys.mailSet.getFromMailName(), "WGCLOUD监控系统");//发信者
+            email.setFrom(StaticKeys.mailSet.getFromMailName(), "大数据监控系统");//发信者
             email.setSubject(mailTitle);//标题
             email.setCharset("UTF-8");//编码格式
             email.setHtmlMsg(mailContent + content_suffix);//内容

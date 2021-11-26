@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * @version v2.3
  * @ClassName:AppState.java
- * @author: http://www.wgstart.com
+ * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: app状态监控
  * @Copyright: 2017-2021 wgcloud. All rights reserved.

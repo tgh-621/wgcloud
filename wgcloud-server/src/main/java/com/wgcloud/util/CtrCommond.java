@@ -21,7 +21,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * @version v2.3
  * @ClassName:CtrCommond.java
- * @author: http://www.wgstart.com
+ * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: CtrCommond.java
  * @Copyright: 2017-2021 wgcloud. All rights reserved.

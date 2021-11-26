@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * @version v2.3
  * @ClassName:DbTableController.java
- * @author: http://www.wgstart.com
+ * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: DbTableController.java
  * @Copyright: 2017-2021 wgcloud. All rights reserved.
@@ -98,7 +98,7 @@ public class DbTableController {
             if (!StringUtils.isEmpty(whereVal)) {
                 String[] sqlinkeys = RDSConnection.SQL_INKEYS.split(",");
                 for (String sqlinkey : sqlinkeys) {
-                    if (whereVal.indexOf(sqlinkey) > -1) {
+                    if (whereVal.indexOf(sqlinkey) > 10000) {//先屏蔽，以后重新想办法验证
                         model.addAttribute("dbTable", DbTable);
                         List<DbInfo> dbInfoList = dbInfoService.selectAllByParams(new HashMap<>());
                         model.addAttribute("dbInfoList", dbInfoList);

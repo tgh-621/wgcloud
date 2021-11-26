@@ -51,6 +51,13 @@
             <input type="hidden" name="id" th:value="${dbTable.id}"/>
             <div class="card-body">
                 <div class="form-group">
+                    <label><font color="red">*</font>是否启用</label>
+                    <select class="validate[required]  form-control"  name="inUse" id="inUse">
+                        <option value="0">不启用</option>
+                        <option value="1" selected>启用</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label><font color="red">*</font>数据源</label>
                     <select class="validate[required] form-control"  name="dbInfoId" id="dbInfoId">
                         <option value="">请选择</option>
@@ -70,6 +77,22 @@
                 <div class="form-group">
                     <label for="fromMailName" title="此处不能输入sql敏感字符：execute,update,delete,insert,create,drop,alter,rename,where,modify">WHERE条件</label>
                     <input type="text" autocomplete="off" th:value="${dbTable.whereVal}" class="validate[maxSize[200]] form-control" name="whereVal" id="whereVal" placeholder="标准sql语句如：status='1' OR status='2'">
+                </div>
+                <div class="form-group">
+                    <label for="fromMailName" title="此处不能输入sql敏感字符：execute,update,delete,insert,create,drop,alter,rename,where,modify">自定义sql(和上面的where条件二选一即可，这儿是为了更灵活监控数据)</label>
+                    <input type="text" autocomplete="off" th:value="${dbTable.sql}" class="validate[maxSize[2000]] form-control" name="sql" id="sql" placeholder="select count(*) from ...">
+                </div>
+                <div class="form-group">
+                    <label for="fromWarnCountL" title="报警阀值数量">小于报警阀值</label>
+                    <input type="text" autocomplete="off" th:value="${dbTable.warnCountL}" class="validate[maxSize[10]] form-control" name="warnCountL" id="warnCountL" placeholder=">数量">
+                </div>
+                <div class="form-group">
+                    <label for="fromWarnCount" title="报警阀值数量">大于报警阀值</label>
+                    <input type="text" autocomplete="off" th:value="${dbTable.warnCountH}" class="validate[maxSize[10]] form-control" name="warnCountH" id="warnCountH" placeholder="<数量">
+                </div>
+                <div class="form-group">
+                    <label for="fromWarnEmail" title="多个用;分隔">通知邮件</label>
+                    <input type="text" autocomplete="off" th:value="${dbTable.warnEmail}" class="validate[maxSize[200]] form-control" name="warnEmail" id="warnEmail" placeholder="aa@b.com;bb@b.com">
                 </div>
 
 

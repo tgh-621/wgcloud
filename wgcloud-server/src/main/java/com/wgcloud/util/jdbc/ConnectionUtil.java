@@ -3,6 +3,7 @@ package com.wgcloud.util.jdbc;
 import com.wgcloud.entity.DbInfo;
 import com.wgcloud.service.DbInfoService;
 import com.wgcloud.service.LogInfoService;
+import com.wgcloud.util.msg.WarnMailUtil;
 import com.wgcloud.util.staticvar.StaticKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ import javax.annotation.Resource;
 /**
  * @version v2.3
  * @ClassName:ConnectionUtil.java
- * @author: http://www.wgstart.com
+ * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: ConnectionUtil.java
  * @Copyright: 2017-2021 wgcloud. All rights reserved.
@@ -91,6 +92,7 @@ public class ConnectionUtil {
             return jdbcTemplate.queryForObject(sql, Long.class);
         } catch (Exception e) {
             logger.error("统计数据表错误：", e);
+            if(StaticKeys.mailSet != null) WarnMailUtil.sendMail(StaticKeys.mailSet.getToMail(),"数据库异常:"+e.getMessage(),e.toString());
             logInfoService.save("统计数据表错误：" + dbInfo.getAliasName(), "IP：" + dbInfo.getIp() + "，端口：" + dbInfo.getPort() + "，数据库别名："
                     + dbInfo.getAliasName() + "，错误信息：" + e.toString(), StaticKeys.LOG_ERROR);
             return 0;

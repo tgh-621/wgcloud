@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @version v2.3
  * @ClassName:AgentController.java
- * @author: http://www.wgstart.com
+ * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: AgentController.java
  * @Copyright: 2017-2021 wgcloud. All rights reserved.

@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @version v2.3
  * @ClassName:ScheduledTask.java
- * @author: http://www.wgstart.com
+ * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: ScheduledTask.java
  * @Copyright: 2017-2021 wgcloud. All rights reserved.
@@ -262,10 +262,10 @@ public class ScheduledTask {
 
 
     /**
-     * 60秒后执行，之后每隔120分钟执行, 单位：ms。
+     * 60秒后执行，之后每隔10分钟执行, 单位：ms。
      * 数据表监控
      */
-    @Scheduled(initialDelay = 60000L, fixedRateString = "${base.dbTableTimes}")
+    @Scheduled(initialDelay = 60000L, fixedDelayString = "${base.dbTableTimes}")
     public void tableCountTask() {
         Map<String, Object> params = new HashMap<>();
         List<DbTable> dbTablesUpdate = new ArrayList<DbTable>();
@@ -279,14 +279,21 @@ public class ScheduledTask {
                 params.put("dbInfoId", dbInfo.getId());
                 List<DbTable> dbTables = dbTableService.selectAllByParams(params);
                 for (DbTable dbTable : dbTables) {
-                    String whereAnd = "";
-                    if (!StringUtils.isEmpty(dbTable.getWhereVal())) {
-                        whereAnd = " and ";
+
+                    if(dbTable.getInUse()!=1)continue;//不启动
+                    if(dbTable.getSql() != null && dbTable.getSql().length() > 10){
+                        sql=dbTable.getSql();//直接使用sql
                     }
-                    if ("postgresql".equals(dbInfo.getDbType())) {
-                        sql = RDSConnection.query_table_count_pg.replace("{tableName}", dbTable.getTableName()) + whereAnd + dbTable.getWhereVal();
-                    } else {
-                        sql = RDSConnection.query_table_count.replace("{tableName}", dbTable.getTableName()) + whereAnd + dbTable.getWhereVal();
+                    else{
+                        String whereAnd = "";
+                        if (!StringUtils.isEmpty(dbTable.getWhereVal())) {
+                            whereAnd = " and ";
+                        }
+                        if ("postgresql".equals(dbInfo.getDbType())) {
+                            sql = RDSConnection.query_table_count_pg.replace("{tableName}", dbTable.getTableName()) + whereAnd + dbTable.getWhereVal();
+                        } else {
+                            sql = RDSConnection.query_table_count.replace("{tableName}", dbTable.getTableName()) + whereAnd + dbTable.getWhereVal();
+                        }
                     }
                     tableCount = connectionUtil.queryTableCount(dbInfo, sql);
                     DbTableCount dbTableCount = new DbTableCount();
@@ -297,6 +304,26 @@ public class ScheduledTask {
                     dbTable.setDateStr(DateUtil.getDateTimeString(date));
                     dbTable.setTableCount(tableCount);
                     dbTablesUpdate.add(dbTable);
+                    if(dbTable.getWarnCountL() != null && tableCount < dbTable.getWarnCountL()){
+                            //报警
+                        dbTable.setWarnCount(dbTable.getWarnCount()+1);
+                        WarnMailUtil.sendDbTableDataCountError(dbInfo,dbTable);
+
+                    }
+                    else if(dbTable.getWarnCountH() != null && tableCount > dbTable.getWarnCountH()){
+                            //报警
+                        dbTable.setWarnCount(dbTable.getWarnCount()+1);
+                        WarnMailUtil.sendDbTableDataCountError(dbInfo,dbTable);
+
+                    }
+                    else{
+
+                        if(dbTable.getWarnCount() > 0){
+                            dbTable.setWarnCount(0);
+                            WarnMailUtil.sendDbTableDataCountRight(dbInfo,dbTable);
+                        }
+                    }
+
                 }
             }
             if (dbTableCounts.size() > 0) {
@@ -305,7 +332,9 @@ public class ScheduledTask {
             }
         } catch (Exception e) {
             logger.error("数据表监控任务错误", e);
+            if(StaticKeys.mailSet != null)WarnMailUtil.sendMail(StaticKeys.mailSet.getToMail(),"数据库异常:"+e.getMessage(),e.toString());
             logInfoService.save("数据表监控任务错误", e.toString(), StaticKeys.LOG_ERROR);
+
         }
     }
 

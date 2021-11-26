@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * @version v2.3
  * @ClassName:FormatUtil.java
- * @author: http://www.wgstart.com
+ * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: FormatUtil.java
  * @Copyright: 2017-2021 wgcloud. All rights reserved.

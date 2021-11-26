@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 /**
  * @version v2.3
  * @ClassName:FormatUtil.java
- * @author: http://www.wgstart.com
+ * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: FormatUtil.java
  * @Copyright: 2017-2021 wgcloud. All rights reserved.
@@ -190,7 +190,7 @@ public class FormatUtil {
 
     // 自定义比较器：按相似度来排序
     static class DoubleComparator implements Comparator {
-        public int compare(Object object1, Object object2) {// 实现接口中的方法  
+        public int compare(Object object1, Object object2) {// 实现接口中的方法
             Map.Entry<String, Integer> p1 = (Map.Entry<String, Integer>) object1; // 强制转换
             Map.Entry<String, Integer> p2 = (Map.Entry<String, Integer>) object2;
             return p2.getValue().compareTo(p1.getValue());

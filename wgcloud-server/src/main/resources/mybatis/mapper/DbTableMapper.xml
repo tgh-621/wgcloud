@@ -10,10 +10,16 @@
 		<result column="DATE_STR" property="dateStr" jdbcType="CHAR" />
 		<result column="DBINFO_ID" property="dbInfoId" jdbcType="CHAR" />
 		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="WARN_COUNT_L" property="warnCountL" jdbcType="INTEGER" />
+		<result column="WARN_COUNT_H" property="warnCountH" jdbcType="INTEGER" />
+		<result column="SQL" property="sql" jdbcType="CHAR" />
+		<result column="IN_USE" property="inUse" jdbcType="INTEGER" />
+		<result column="WARN_COUNT" property="warnCount" jdbcType="INTEGER" />
+		<result column="WARN_EMAIL" property="warnEmail" jdbcType="CHAR" />
 	</resultMap>
-	
+
 	<sql id="tableColumnList">
-		ID,TABLE_NAME, WHERE_VAL,REMARK,CREATE_TIME,TABLE_COUNT,DATE_STR,DBINFO_ID
+		ID,TABLE_NAME, WHERE_VAL,REMARK,CREATE_TIME,TABLE_COUNT,DATE_STR,DBINFO_ID,WARN_COUNT_L,WARN_COUNT_H,WARN_EMAIL,`SQL`,IN_USE,WARN_COUNT
 	</sql>
 
 	<sql id="queryByParams">
@@ -31,13 +37,13 @@
 	<select id="selectById" resultMap="resultMap" parameterType="java.lang.String">
 		SELECT
 		<include refid="tableColumnList" />
-		FROM DB_TABLE 
-		WHERE ID=#{id} 
+		FROM DB_TABLE
+		WHERE ID=#{id}
 	</select>
-	
-	
+
+
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-		DELETE FROM DB_TABLE 
+		DELETE FROM DB_TABLE
 		WHERE ID = #{id}
 	</delete>
 
@@ -53,7 +59,7 @@
 
 	<delete id="deleteById" parameterType="java.lang.String">
 		DELETE FROM
-		DB_TABLE 
+		DB_TABLE
 		WHERE ID IN
 		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
 			#{item}
@@ -61,14 +67,20 @@
 	</delete>
 
 	<insert id="save" parameterType="com.wgcloud.entity.DbTable">
-		INSERT INTO DB_TABLE 
+		INSERT INTO DB_TABLE
     	<trim prefix="(" suffix=")" suffixOverrides="," >
       		<if test="id != null" >ID,</if>
       		<if test="tableName != null" >TABLE_NAME,</if>
       		<if test="whereVal != null">WHERE_VAL,</if>
       		<if test="remark != null">REMARK,</if>
 			<if test="dbInfoId != null">DBINFO_ID,</if>
-      		<if test="createTime != null" >CREATE_TIME</if>
+			<if test="warnCountL != null" >WARN_COUNT_L,</if>
+			<if test="warnCountH != null" >WARN_COUNT_H,</if>
+			<if test="warnCount != null" >WARN_COUNT,</if>
+			<if test="inUse != null" >IN_USE,</if>
+			<if test="sql != null" >`SQL`,</if>
+			<if test="warnEmail != null" >WARN_EMAIL,</if>
+			<if test="createTime != null" >CREATE_TIME</if>
     	</trim>
     	<trim prefix="values (" suffix=")" suffixOverrides="," >
       		<if test="id != null" >#{id},</if>
@@ -76,7 +88,13 @@
       		<if test="whereVal != null" >#{whereVal},</if>
       		<if test="remark != null" >#{remark},</if>
 			<if test="dbInfoId != null" >#{dbInfoId},</if>
-      		<if test="createTime != null" >#{createTime}</if>
+			<if test="warnCountL != null" >#{warnCountL},</if>
+			<if test="warnCountH != null" >#{warnCountH},</if>
+			<if test="warnCount != null" >#{warnCount},</if>
+			<if test="inUse != null" >#{inUse},</if>
+			<if test="sql != null" >#{sql},</if>
+			<if test="warnEmail != null" >#{warnEmail},</if>
+			<if test="createTime != null" >#{createTime}</if>
     	</trim>
 	</insert>
 
@@ -101,6 +119,24 @@
 			</if>
 			<if test="dbInfoId != null">
 				DBINFO_ID = #{dbInfoId},
+			</if>
+			<if test="warnCountL != null">
+				WARN_COUNT_L = #{warnCountL},
+			</if>
+			<if test="warnCountH != null">
+				WARN_COUNT_H = #{warnCountH},
+			</if>
+			<if test="warnCount != null">
+				WARN_COUNT = #{warnCount},
+			</if>
+			<if test="inUse != null">
+				IN_USE = #{inUse},
+			</if>
+			<if test="sql != null">
+				`SQL` = #{sql},
+			</if>
+			<if test="warnEmail != null">
+				WARN_EMAIL = #{warnEmail},
 			</if>
 			<if test="createTime != null">
 				CREATE_TIME = #{createTime}
@@ -131,6 +167,24 @@
 				<if test="item.dbInfoId != null" >
 					DBINFO_ID= #{item.dbInfoId},
 				</if>
+				<if test="item.warnCountL != null" >
+					WARN_COUNT_L= #{item.warnCountL},
+				</if>
+				<if test="item.warnCountH != null" >
+					WARN_COUNT_H= #{item.warnCountH},
+				</if>
+				<if test="item.warnCount != null" >
+					WARN_COUNT= #{item.warnCount},
+				</if>
+				<if test="item.inUse != null" >
+					IN_USE= #{item.inUse},
+				</if>
+				<if test="item.sql != null" >
+					`SQL`= #{item.sql},
+				</if>
+				<if test="item.warnEmail != null" >
+					WARN_EMAIL= #{item.warnEmail},
+				</if>
 				<if test="item.createTime != null" >
 					CREATE_TIME= #{item.createTime}
 				</if>
@@ -159,7 +213,7 @@
 		</where>
 		 ORDER BY CREATE_TIME DESC
 	</select>
-	
+
 	<select id="selectByParams" parameterType="map" resultMap="resultMap">
 		SELECT
 		<include refid="tableColumnList" />
@@ -169,6 +223,6 @@
 		</where>
 		 ORDER BY CREATE_TIME DESC
 	</select>
-	
-	
+
+
 </mapper>

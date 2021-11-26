@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 /**
  * @version v2.3
  * @ClassName:DbTable.java
- * @author: http://www.wgstart.com
+ * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: 检查系统入侵信息
  * @Copyright: 2017-2021 wgcloud. All rights reserved.
@@ -44,6 +44,16 @@ public class DbTable extends BaseEntity {
     private Long value;
 
     private String dateStr;
+
+    private Integer warnCountL;
+    private Integer warnCountH;
+    private Integer warnCount;
+    private String sql;
+
+    private String warnEmail;
+
+    private Integer inUse;
+
 
     /**
      * 创建时间
@@ -112,5 +122,53 @@ public class DbTable extends BaseEntity {
 
     public void setDbInfoId(String dbInfoId) {
         this.dbInfoId = dbInfoId;
+    }
+
+    public Integer getWarnCountL() {
+        return warnCountL;
+    }
+
+    public void setWarnCountL(Integer warnCountL) {
+        this.warnCountL = warnCountL;
+    }
+
+    public Integer getWarnCountH() {
+        return warnCountH;
+    }
+
+    public void setWarnCountH(Integer warnCountH) {
+        this.warnCountH = warnCountH;
+    }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+
+    public Integer getInUse() {
+        return inUse;
+    }
+
+    public void setInUse(Integer inUse) {
+        this.inUse = inUse;
+    }
+
+    public String getWarnEmail() {
+        return warnEmail;
+    }
+
+    public void setWarnEmail(String warnEmail) {
+        this.warnEmail = warnEmail;
+    }
+
+    public Integer getWarnCount() {
+        return warnCount;
+    }
+
+    public void setWarnCount(Integer warnCount) {
+        this.warnCount = warnCount;
     }
 }
