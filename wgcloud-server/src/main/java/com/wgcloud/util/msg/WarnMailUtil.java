@@ -174,7 +174,7 @@ public class WarnMailUtil {
      * @param tableInfo 主机信息
      * @return
      */
-    public static boolean sendDbTableDataCountError(DbInfo dbInfo,DbTable tableInfo) {
+    public static boolean sendDbTableDataCountError(DbInfo dbInfo,DbTable tableInfo,String info) {
         if (StaticKeys.mailSet == null) {
             return false;
         }
@@ -185,7 +185,7 @@ public class WarnMailUtil {
             try {
                 String title = "表数据异常警告：数据库=" + dbInfo.getAliasName()+";表="+ tableInfo.getRemark();
                 String commContent = "表数据存在异常，请检查数据库=" + dbInfo.getAliasName()+";表="+ tableInfo.getRemark()+"（"+tableInfo.getTableName()+"）" + "，<br/>备注：where=" + tableInfo.getWhereVal()+",<br/>sql="+tableInfo.getSql()
-                        + "，<br/>累计错误次数="+tableInfo.getWarnCount()+"<br/>";
+                        + "，<br/>累计错误次数="+tableInfo.getWarnCount()+"<br/>额外信息:"+info+"<br/>";
                 if(tableInfo.getWarnCountL() != null){
                     if(tableInfo.getTableCount() < tableInfo.getWarnCountL()){
                         //报警

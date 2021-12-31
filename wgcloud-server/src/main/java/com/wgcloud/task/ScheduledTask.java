@@ -304,16 +304,15 @@ public class ScheduledTask {
                     dbTable.setDateStr(DateUtil.getDateTimeString(date));
                     dbTable.setTableCount(tableCount);
                     dbTablesUpdate.add(dbTable);
-                    if(dbTable.getWarnCountL() != null && tableCount < dbTable.getWarnCountL()){
+                    if((dbTable.getWarnCountL() != null && tableCount < dbTable.getWarnCountL()) ||
+                            (dbTable.getWarnCountH() != null && tableCount > dbTable.getWarnCountH())){
                             //报警
+                        String info ="无";
                         dbTable.setWarnCount(dbTable.getWarnCount()+1);
-                        WarnMailUtil.sendDbTableDataCountError(dbInfo,dbTable);
-
-                    }
-                    else if(dbTable.getWarnCountH() != null && tableCount > dbTable.getWarnCountH()){
-                            //报警
-                        dbTable.setWarnCount(dbTable.getWarnCount()+1);
-                        WarnMailUtil.sendDbTableDataCountError(dbInfo,dbTable);
+                        if(dbTable.getfSql()!= null && dbTable.getfSql().length() > 15){
+                            info = connectionUtil.queryTableString(dbInfo,dbTable.getfSql());
+                        }
+                        WarnMailUtil.sendDbTableDataCountError(dbInfo,dbTable,info);
 
                     }
                     else{

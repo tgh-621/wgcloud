@@ -49,6 +49,7 @@ public class DbTable extends BaseEntity {
     private Integer warnCountH;
     private Integer warnCount;
     private String sql;
+    private String fSql;
 
     private String warnEmail;
 
@@ -170,5 +171,13 @@ public class DbTable extends BaseEntity {
 
     public void setWarnCount(Integer warnCount) {
         this.warnCount = warnCount;
+    }
+
+    public String getfSql() {
+        return fSql;
+    }
+
+    public void setfSql(String fSql) {
+        this.fSql = fSql;
     }
 }

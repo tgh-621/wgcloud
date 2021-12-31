@@ -98,5 +98,20 @@ public class ConnectionUtil {
             return 0;
         }
     }
+    public String queryTableString(DbInfo dbInfo, String sql) {
+        try {
+            JdbcTemplate jdbcTemplate = getJdbcTemplate(dbInfo);
+            if (null == jdbcTemplate) {
+                return null;
+            }
+            return jdbcTemplate.queryForObject(sql, String.class);
+        } catch (Exception e) {
+            logger.error("数据表String查询错误：", e);
+            if(StaticKeys.mailSet != null) WarnMailUtil.sendMail(StaticKeys.mailSet.getToMail(),"数据表String查询错误:"+e.getMessage(),e.toString());
+            logInfoService.save("数据表String查询错误：" + dbInfo.getAliasName(), "IP：" + dbInfo.getIp() + "，端口：" + dbInfo.getPort() + "，数据库别名："
+                    + dbInfo.getAliasName() + "，错误信息：" + e.toString(), StaticKeys.LOG_ERROR);
+            return null;
+        }
+    }
 
 }

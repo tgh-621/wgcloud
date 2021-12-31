@@ -13,13 +13,14 @@
 		<result column="WARN_COUNT_L" property="warnCountL" jdbcType="INTEGER" />
 		<result column="WARN_COUNT_H" property="warnCountH" jdbcType="INTEGER" />
 		<result column="SQL" property="sql" jdbcType="CHAR" />
+		<result column="FSQL" property="fSql" jdbcType="CHAR" />
 		<result column="IN_USE" property="inUse" jdbcType="INTEGER" />
 		<result column="WARN_COUNT" property="warnCount" jdbcType="INTEGER" />
 		<result column="WARN_EMAIL" property="warnEmail" jdbcType="CHAR" />
 	</resultMap>
 
 	<sql id="tableColumnList">
-		ID,TABLE_NAME, WHERE_VAL,REMARK,CREATE_TIME,TABLE_COUNT,DATE_STR,DBINFO_ID,WARN_COUNT_L,WARN_COUNT_H,WARN_EMAIL,`SQL`,IN_USE,WARN_COUNT
+		ID,TABLE_NAME, WHERE_VAL,REMARK,CREATE_TIME,TABLE_COUNT,DATE_STR,DBINFO_ID,WARN_COUNT_L,WARN_COUNT_H,WARN_EMAIL,`SQL`,IN_USE,WARN_COUNT,FSQL
 	</sql>
 
 	<sql id="queryByParams">
@@ -79,6 +80,7 @@
 			<if test="warnCount != null" >WARN_COUNT,</if>
 			<if test="inUse != null" >IN_USE,</if>
 			<if test="sql != null" >`SQL`,</if>
+			<if test="fSql != null" >`FSQL`,</if>
 			<if test="warnEmail != null" >WARN_EMAIL,</if>
 			<if test="createTime != null" >CREATE_TIME</if>
     	</trim>
@@ -93,6 +95,7 @@
 			<if test="warnCount != null" >#{warnCount},</if>
 			<if test="inUse != null" >#{inUse},</if>
 			<if test="sql != null" >#{sql},</if>
+			<if test="fSql != null" >#{fSql},</if>
 			<if test="warnEmail != null" >#{warnEmail},</if>
 			<if test="createTime != null" >#{createTime}</if>
     	</trim>
@@ -134,6 +137,9 @@
 			</if>
 			<if test="sql != null">
 				`SQL` = #{sql},
+			</if>
+			<if test="fSql != null">
+				`FSQL` = #{fSql},
 			</if>
 			<if test="warnEmail != null">
 				WARN_EMAIL = #{warnEmail},
@@ -181,6 +187,9 @@
 				</if>
 				<if test="item.sql != null" >
 					`SQL`= #{item.sql},
+				</if>
+				<if test="item.fSql != null" >
+					`FSQL`= #{item.fSql},
 				</if>
 				<if test="item.warnEmail != null" >
 					WARN_EMAIL= #{item.warnEmail},
