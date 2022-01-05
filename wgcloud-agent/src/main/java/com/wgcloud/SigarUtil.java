@@ -86,8 +86,8 @@ public class SigarUtil {
         MemState memState = new MemState();
         Mem mem = sigar.getMem();
         long total = mem.getTotal() / 1024L / 1024L;
-        long used = mem.getUsed() / 1024L / 1024L;
-        long free = mem.getFree() / 1024L / 1024L;
+        long used = mem.getActualUsed() / 1024L / 1024L;
+        long free = mem.getActualFree() / 1024L / 1024L;
         double usePer = (double) used / (double) total;
         memState.setUsePer(FormatUtil.formatDouble(usePer * 100, 1));
         memState.setFree(free + "");

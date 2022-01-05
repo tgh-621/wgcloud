@@ -11,6 +11,7 @@ import org.apache.commons.mail.HtmlEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.NumberFormat;
 import java.util.Date;
 
 /**
@@ -104,6 +105,44 @@ public class WarnMailUtil {
             }
         }
 
+        return false;
+    }
+
+    /**
+     * 判断系统cpu使用率是否超过98%，超过则发送告警邮件
+     *
+     * @param DeskState
+     * @param toMail
+     * @return
+     */
+    public static boolean sendDeskWarnInfo(DeskState deskState) {
+        if (StaticKeys.mailSet == null) {
+            return false;
+        }
+        MailSet mailSet = StaticKeys.mailSet;
+        if (StaticKeys.NO_SEND_WARN.equals(mailConfig.getAllWarnMail()) || StaticKeys.NO_SEND_WARN.equals(mailConfig.getCpuWarnMail())) {
+            return false;
+        }
+        String key = deskState.getHostname();
+        if (!StringUtils.isEmpty(WarnPools.DESK_WARN_MAP.get(key))) {
+            return false;
+        }
+        try{
+            Double num2 = NumberFormat.getPercentInstance().parse(deskState.getUsePer()).doubleValue();
+                if (num2 >= 0.88) {
+                    String title = "硬盘告警：" + deskState.getHostname();
+                    String commContent = "服务器：" + deskState.getHostname() + ",硬盘"+deskState.getFileSystem()+"使用率为" +deskState.getUsePer() + "，可能存在异常，请尽快处理";
+                    //发送邮件
+                    sendMail(mailSet.getToMail(), title, commContent);
+                    //标记已发送过告警信息
+                    WarnPools.DESK_WARN_MAP.put(key, "1");
+                    //记录发送信息
+                    logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
+                }
+            } catch (Exception e) {
+                logger.error("发送磁盘告警邮件失败：", e);
+                logInfoService.save("发送磁盘告警邮件错误", e.toString(), StaticKeys.LOG_ERROR);
+            }
         return false;
     }
 

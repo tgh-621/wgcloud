@@ -125,6 +125,10 @@ public class AgentController {
                     DeskState bean = new DeskState();
                     BeanUtil.copyProperties(jsonObjects, bean);
                     BatchData.DESK_STATE_LIST.add(bean);
+                    Runnable runnable = () -> {
+                        WarnMailUtil.sendDeskWarnInfo(bean);
+                    };
+                    executor.execute(runnable);
                 }
             }
             resultJson.put("result", "success");
