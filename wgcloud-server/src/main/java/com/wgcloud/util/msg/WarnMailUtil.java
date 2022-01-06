@@ -4,6 +4,7 @@ import com.wgcloud.common.ApplicationContextHelper;
 import com.wgcloud.config.MailConfig;
 import com.wgcloud.entity.*;
 import com.wgcloud.service.LogInfoService;
+import com.wgcloud.util.DateUtil;
 import com.wgcloud.util.staticvar.StaticKeys;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.DefaultAuthenticator;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -20,7 +22,7 @@ import java.util.Date;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: WarnMailUtil.java
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ * @Copyright: 2017-2021 bigdatacd. All rights reserved.
  */
 public class WarnMailUtil {
 
@@ -31,12 +33,53 @@ public class WarnMailUtil {
     private static LogInfoService logInfoService = (LogInfoService) ApplicationContextHelper.getBean(LogInfoService.class);
     private static MailConfig mailConfig = (MailConfig) ApplicationContextHelper.getBean(MailConfig.class);
 
+    public static int mW = 0;//内存
+    public static int cW = 0;//cpu
+    public static int dW = 0;//磁盘
+    public static int aW = 0;//应用
+    public static int hW = 0;//主机
+    public static int sW = 0;//接口
+    public static int dbW = 0;//数据
+
+
+    /**
+     * 发送总结邮件
+     *
+     * @return
+     */
+    public static boolean sendTotalInfo() {
+        if (StaticKeys.mailSet == null) {
+            return false;
+        }
+        MailSet mailSet = StaticKeys.mailSet;
+        if (StaticKeys.NO_SEND_WARN.equals(mailConfig.getAllWarnMail())) {
+            return false;
+        }
+            try {
+                String title = "服务器监控日报：" + DateUtil.getCurrentDate();
+                String commContent = "昨日报警情况如下:<br/>内存报警:"+mW+"次<br/>　" +
+                        "CPU报警:"+cW+"次<br/>" +
+                        "磁盘报警:"+dW+"次<br/>" +
+                        "应用报警:"+aW+"次<br/>" +
+                        "主机报警:"+hW+"次<br/>" +
+                        "接口报警:"+sW+"次<br/>" +
+                        "数据报警:"+dbW+"次<br/>" ;
+                //发送邮件
+                sendMail(mailSet.getToMail(), title, commContent);
+                mW=cW=dW=aW=hW=sW=dbW=0;
+            } catch (Exception e) {
+                logger.error("发送服务器监控日报失败：", e);
+                logInfoService.save("发送服务器监控日报错误", e.toString(), StaticKeys.LOG_ERROR);
+            }
+
+
+        return true;
+    }
 
     /**
      * 判断系统内存使用率是否超过98%，超过则发送告警邮件
      *
      * @param memState
-     * @param toMail
      * @return
      */
     public static boolean sendWarnInfo(MemState memState) {
@@ -53,6 +96,7 @@ public class WarnMailUtil {
         }
         if (memState.getUsePer() != null && memState.getUsePer() >= mailConfig.getMemWarnVal()) {
             try {
+                mW++;
                 String title = "内存告警：" + memState.getHostname();
                 String commContent = "服务器：" + memState.getHostname() + ",内存使用率为" + Double.valueOf(memState.getUsePer()) + "%，可能存在异常，请查看";
                 //发送邮件
@@ -74,7 +118,6 @@ public class WarnMailUtil {
      * 判断系统cpu使用率是否超过98%，超过则发送告警邮件
      *
      * @param cpuState
-     * @param toMail
      * @return
      */
     public static boolean sendCpuWarnInfo(CpuState cpuState) {
@@ -91,6 +134,7 @@ public class WarnMailUtil {
         }
         if (cpuState.getSys() != null && cpuState.getSys() >= mailConfig.getCpuWarnVal()) {
             try {
+                cW++;
                 String title = "CPU告警：" + cpuState.getHostname();
                 String commContent = "服务器：" + cpuState.getHostname() + ",CPU使用率为" + Double.valueOf(cpuState.getSys()) + "%，可能存在异常，请查看";
                 //发送邮件
@@ -111,8 +155,7 @@ public class WarnMailUtil {
     /**
      * 判断系统cpu使用率是否超过98%，超过则发送告警邮件
      *
-     * @param DeskState
-     * @param toMail
+     * @param deskState
      * @return
      */
     public static boolean sendDeskWarnInfo(DeskState deskState) {
@@ -130,6 +173,7 @@ public class WarnMailUtil {
         try{
             Double num2 = NumberFormat.getPercentInstance().parse(deskState.getUsePer()).doubleValue();
                 if (num2 >= 0.88) {
+                    dW++;
                     String title = "硬盘告警：" + deskState.getHostname();
                     String commContent = "服务器：" + deskState.getHostname() + ",硬盘"+deskState.getFileSystem()+"使用率为" +deskState.getUsePer() + "，可能存在异常，请尽快处理";
                     //发送邮件
@@ -150,8 +194,8 @@ public class WarnMailUtil {
     /**
      * 服务接口不通发送告警邮件
      *
-     * @param cpuState
-     * @param toMail
+     * @param heathMonitor
+     * @param isDown
      * @return
      */
     public static boolean sendHeathInfo(HeathMonitor heathMonitor, boolean isDown) {
@@ -168,6 +212,7 @@ public class WarnMailUtil {
                 return false;
             }
             try {
+                sW++;
                 String title = "服务接口检测告警：" + heathMonitor.getAppName();
                 String commContent = "服务接口：" + heathMonitor.getHeathUrl() + "，响应状态码为" + heathMonitor.getHeathStatus() + "，可能存在异常，请查看";
                 //发送邮件
@@ -222,6 +267,7 @@ public class WarnMailUtil {
         if(count > 10 && count%5 != 0)return true;
 
             try {
+                dbW++;
                 String title = "表数据异常警告：数据库=" + dbInfo.getAliasName()+";表="+ tableInfo.getRemark();
                 String commContent = "表数据存在异常，请检查数据库=" + dbInfo.getAliasName()+";表="+ tableInfo.getRemark()+"（"+tableInfo.getTableName()+"）" + "，<br/>备注：where=" + tableInfo.getWhereVal()+",<br/>sql="+tableInfo.getSql()
                         + "，<br/>累计错误次数="+tableInfo.getWarnCount()+"<br/>额外信息:"+info+"<br/>";
@@ -292,6 +338,7 @@ public class WarnMailUtil {
         }
         String key = systemInfo.getId();
         if (isDown) {
+            hW++;
             if (!StringUtils.isEmpty(WarnPools.MEM_WARN_MAP.get(key))) {
                 return false;
             }
@@ -330,7 +377,7 @@ public class WarnMailUtil {
     /**
      * 进程下线发送告警邮件
      *
-     * @param AppInfo 进程信息
+     * @param appInfo 进程信息
      * @param isDown  是否是下线告警，true下线告警，false上线恢复
      * @return
      */
@@ -348,6 +395,7 @@ public class WarnMailUtil {
                 return false;
             }
             try {
+                aW++;
                 String title = "进程下线告警：" + appInfo.getHostname() + "，" + appInfo.getAppName();
                 String commContent = "进程已经超过10分钟未上报数据，可能已经下线：" + appInfo.getHostname() + "，" + appInfo.getAppName()
                         + "。如果不再监控该进程在列表删除即可，同时不会再收到该进程告警邮件";

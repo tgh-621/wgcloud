@@ -496,6 +496,10 @@ public class ScheduledTask {
     @Scheduled(cron = "0 10 1 * * ?")
     public void clearHisdataTask() {
         logger.info("定时清空历史数据任务开始----------" + DateUtil.getCurrentDateTime());
+        Runnable runnable = () -> {
+            WarnMailUtil.sendTotalInfo();
+        };
+        executor.execute(runnable);
         WarnPools.clearOldData();//清空发告警邮件的记录
         String nowTime = DateUtil.getCurrentDateTime();
         //15天前时间
