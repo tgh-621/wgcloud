@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: RDSConnection.java
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ *
  */
 @Component
 public class RDSConnection {

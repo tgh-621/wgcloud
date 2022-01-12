@@ -13,7 +13,7 @@ import java.net.URLEncoder;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: Encode.java
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ *
  */
 public class Encode {
 

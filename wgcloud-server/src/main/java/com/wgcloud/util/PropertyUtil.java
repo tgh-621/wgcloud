@@ -11,7 +11,7 @@ import java.util.Set;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: PropertyUtil.java
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ *
  */
 public class PropertyUtil {
 

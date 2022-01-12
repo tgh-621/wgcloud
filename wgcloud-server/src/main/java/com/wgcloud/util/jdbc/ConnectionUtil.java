@@ -19,7 +19,7 @@ import javax.annotation.Resource;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: ConnectionUtil.java
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ *
  */
 @Component
 public class ConnectionUtil {

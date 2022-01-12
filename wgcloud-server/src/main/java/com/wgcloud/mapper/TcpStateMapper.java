@@ -12,7 +12,7 @@ import java.util.Map;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: 查看TCP连接状态
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ *
  */
 @Repository
 public interface TcpStateMapper {

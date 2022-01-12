@@ -11,7 +11,7 @@ import java.util.Date;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: app状态监控
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ *
  */
 public class AppState extends BaseEntity {
 

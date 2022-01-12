@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: LoginCotroller.java
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ *
  */
 @Controller
 @RequestMapping(value = "/login")

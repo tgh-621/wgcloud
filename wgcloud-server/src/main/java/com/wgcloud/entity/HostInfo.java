@@ -8,7 +8,7 @@ import java.util.Date;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: host的IP密码等信息
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ *
  */
 public class HostInfo extends BaseEntity {
 

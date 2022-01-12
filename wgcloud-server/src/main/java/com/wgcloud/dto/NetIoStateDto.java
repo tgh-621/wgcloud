@@ -11,7 +11,7 @@ import java.util.Date;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: 网络设备的吞吐率
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ *
  */
 public class NetIoStateDto extends BaseEntity {
 

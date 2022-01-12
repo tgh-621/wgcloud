@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: AppInfoController.java
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ *
  */
 @Configuration
 public class IndexController implements WebMvcConfigurer {

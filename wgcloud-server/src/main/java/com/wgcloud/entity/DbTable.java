@@ -8,7 +8,7 @@ import java.sql.Timestamp;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: 检查系统入侵信息
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ *
  */
 public class DbTable extends BaseEntity {
 

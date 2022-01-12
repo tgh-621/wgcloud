@@ -8,7 +8,7 @@ import java.util.Date;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: 查看磁盘IO使用情况
- * @Copyright: 2017-2021 wgcloud. All rights reserved.
+ *
  */
 public class MailSet extends BaseEntity {
 

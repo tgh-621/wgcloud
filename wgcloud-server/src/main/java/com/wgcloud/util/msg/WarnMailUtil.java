@@ -22,7 +22,7 @@ import java.util.Date;
  * @author: http://www.bigdatacd.com
  * @date: 2019年11月16日
  * @Description: WarnMailUtil.java
- * @Copyright: 2017-2021 bigdatacd. All rights reserved.
+ *
  */
 public class WarnMailUtil {
 
