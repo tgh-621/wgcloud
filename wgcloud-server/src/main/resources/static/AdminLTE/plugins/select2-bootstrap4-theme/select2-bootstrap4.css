@@ -10,7 +10,7 @@
     width: 20px; }
     .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow b {
       top: 60%;
-      border-color: #343a40 transparent transparent transparent;
+      border-color: #477ce4 transparent transparent transparent;
       border-style: solid;
       border-width: 5px 4px 0 4px;
       width: 0;
@@ -39,7 +39,7 @@
     padding: 0 5px;
     width: 100%; }
   .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice {
-    color: #343a40;
+    color: #477ce4;
     border: 1px solid #bdc6d0;
     border-radius: 0.2rem;
     padding: 0;
@@ -57,7 +57,7 @@
     padding-left: 3px;
     float: left; }
     .select2-container--bootstrap4 .select2-selection--multiple .select2-selection__choice__remove:hover {
-      color: #343a40; }
+      color: #477ce4; }
 
 .select2-container {
   display: block; }
@@ -160,4 +160,4 @@ form.was-validated select:valid ~ .select2-container--bootstrap4 .select2-select
   float: right;
   margin-right: 0.3em; }
   .select2-container--bootstrap4 .select2-selection__clear:hover {
-    background-color: #343a40; }
+    background-color: #477ce4; }

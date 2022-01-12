@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>WGCLOUD公众看板(请收藏)</title>
+  <title>监控平台公众看板(请收藏)</title>
   <div  th:replace="common/header.html"></div>
 
 
@@ -21,7 +21,7 @@
           <div class="col-sm-6">
             <a href="http://www.bigdatacd.com"  target="_blank">
               <img th:src="@{'/static/logincss/logo.png'}" style="height:25px;width:25px;opacity: .8" class="brand-image img-circle elevation-3"
-              >&nbsp;WGCLOUD
+              >&nbsp;监控平台
             </a>
           </div>
           <div class="col-sm-6">
@@ -52,7 +52,7 @@
         <div class="row">
           <div class="col-lg-3 col-6">
             <!-- small box -->
-            <div class="small-box bg-info">
+            <div class="small-box ">
               <div class="inner">
                 <h3 th:text="${totalSizeApp}"></h3>
 
@@ -63,7 +63,7 @@
           <!-- ./col -->
           <div class="col-lg-3 col-6">
             <!-- small box -->
-            <div class="small-box bg-warning">
+            <div class="small-box ">
               <div class="inner">
                 <h3 th:text="${memPerSizeApp}"></h3>
 
@@ -74,7 +74,7 @@
           <!-- ./col -->
           <div class="col-lg-3 col-6">
             <!-- small box -->
-            <div class="small-box bg-info">
+            <div class="small-box ">
               <div class="inner">
                 <h3 th:text="${dbInfoSize}"></h3>
 
@@ -85,7 +85,7 @@
           <!-- ./col -->
           <div class="col-lg-3 col-6">
             <!-- small box -->
-            <div class="small-box bg-info">
+            <div class="small-box ">
               <div class="inner">
                 <h3 th:text="${dbTableSize}"></h3>
 
@@ -100,7 +100,7 @@
         <div class="row">
           <div class="col-lg-3 col-6">
             <!-- small box -->
-            <div class="small-box bg-info">
+            <div class="small-box ">
               <div class="inner">
                 <h3 th:text="${dbTableSum}"></h3>
 
@@ -111,7 +111,7 @@
           <!-- ./col -->
           <div class="col-lg-3 col-6">
             <!-- small box -->
-            <div class="small-box bg-info">
+            <div class="small-box ">
               <div class="inner">
                 <h3 th:text="${heathSize}"></h3>
 
@@ -122,7 +122,7 @@
           <!-- ./col -->
           <div class="col-lg-3 col-6">
             <!-- small box -->
-            <div class="small-box bg-danger">
+            <div class="small-box ">
               <div class="inner">
                 <h3 th:text="${heatherrSize}"></h3>
 
@@ -134,7 +134,7 @@
           <!-- ./col -->
           <div class="col-lg-3 col-6">
             <!-- small box -->
-            <div class="small-box bg-success">
+            <div class="small-box ">
               <div class="inner">
                 <h3  th:text="${logSize}">53<sup style="font-size: 20px"></sup></h3>
 
