@@ -124,7 +124,7 @@ public class ScheduledTask {
                     Date createTime = systemInfo.getCreateTime();
                     long diff = date.getTime() - createTime.getTime();
                     if (diff > delayTime) {
-                        if (!StringUtils.isEmpty(WarnPools.MEM_WARN_MAP.get(systemInfo.getId()))) {
+                        if (WarnPools.HOST_WARN_MAP.get(systemInfo.getId())!=null) {
                             continue;
                         }
                         systemInfo.setState(StaticKeys.DOWN_STATE);
@@ -139,7 +139,7 @@ public class ScheduledTask {
                         };
                         executor.execute(runnable);
                     } else {
-                        if (!StringUtils.isEmpty(WarnPools.MEM_WARN_MAP.get(systemInfo.getId()))) {
+                        if (WarnPools.HOST_WARN_MAP.get(systemInfo.getId())!=null) {
                             Runnable runnable = () -> {
                                 WarnMailUtil.sendHostDown(systemInfo, false);
                             };
@@ -169,7 +169,7 @@ public class ScheduledTask {
                     Date createTime = appInfo.getCreateTime();
                     long diff = date.getTime() - createTime.getTime();
                     if (diff > delayTime) {
-                        if (!StringUtils.isEmpty(WarnPools.MEM_WARN_MAP.get(appInfo.getId()))) {
+                        if (WarnPools.APP_WARN_MAP.get(appInfo.getId())!=null) {
                             continue;
                         }
                         appInfo.setState(StaticKeys.DOWN_STATE);
@@ -184,7 +184,7 @@ public class ScheduledTask {
                         };
                         executor.execute(runnable);
                     } else {
-                        if (!StringUtils.isEmpty(WarnPools.MEM_WARN_MAP.get(appInfo.getId()))) {
+                        if (WarnPools.APP_WARN_MAP.get(appInfo.getId())!=null) {
                             Runnable runnable = () -> {
                                 WarnMailUtil.sendAppDown(appInfo, false);
                             };
@@ -228,7 +228,7 @@ public class ScheduledTask {
                     h.setHeathStatus(status + "");
                     heathMonitors.add(h);
                     if (!"200".equals(h.getHeathStatus())) {
-                        if (!StringUtils.isEmpty(WarnPools.MEM_WARN_MAP.get(h.getId()))) {
+                        if ((WarnPools.API_WARN_MAP.get(h.getId())) != null) {
                             continue;
                         }
                         LogInfo logInfo = new LogInfo();
@@ -241,7 +241,7 @@ public class ScheduledTask {
                         };
                         executor.execute(runnable);
                     } else {
-                        if (!StringUtils.isEmpty(WarnPools.MEM_WARN_MAP.get(h.getId()))) {
+                        if ((WarnPools.API_WARN_MAP.get(h.getId()))!= null) {
                             Runnable runnable = () -> {
                                 WarnMailUtil.sendHeathInfo(h, false);
                             };

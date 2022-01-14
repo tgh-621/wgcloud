@@ -91,24 +91,44 @@ public class WarnMailUtil {
             return false;
         }
         String key = memState.getHostname();
-        if (!StringUtils.isEmpty(WarnPools.MEM_WARN_MAP.get(key))) {
-            return false;
-        }
+        Integer ct = WarnPools.MEM_WARN_MAP.get(key);
+        if(ct == null)ct = 0;
         if (memState.getUsePer() != null && memState.getUsePer() >= mailConfig.getMemWarnVal()) {
+            mW++;
+            ct++;
+            if ( (ct > 5) && (ct % 5 !=0)) {
+                return false;
+            }
             try {
-                mW++;
                 String title = "内存告警：" + memState.getHostname();
-                String commContent = "服务器：" + memState.getHostname() + ",内存使用率为" + Double.valueOf(memState.getUsePer()) + "%，可能存在异常，请查看";
+                String commContent = "服务器：" + memState.getHostname() + ",内存使用率为" + Double.valueOf(memState.getUsePer()) + "%，连续警告"+ct+"次,可能存在异常，请查看";
                 //发送邮件
                 sendMail(mailSet.getToMail(), title, commContent);
                 //标记已发送过告警信息
-                WarnPools.MEM_WARN_MAP.put(key, "1");
+                WarnPools.MEM_WARN_MAP.put(key, ct);
                 //记录发送信息
                 logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
             } catch (Exception e) {
                 logger.error("发送内存告警邮件失败：", e);
                 logInfoService.save("发送内存告警邮件错误", e.toString(), StaticKeys.LOG_ERROR);
             }
+        }
+        else if(ct > 0){
+
+            ct=0;
+            WarnPools.MEM_WARN_MAP.put(key, ct);
+            try {
+                String title = "内存恢复通知：" + memState.getHostname();
+                String commContent = "服务器：" + memState.getHostname() + ",内存使用率为" + Double.valueOf(memState.getUsePer()) + "%，已经恢复到警戒线以下";
+                //发送邮件
+                sendMail(mailSet.getToMail(), title, commContent);
+                //记录发送信息
+                logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
+            } catch (Exception e) {
+                logger.error("发送内存告警邮件失败：", e);
+                logInfoService.save("发送内存恢复邮件错误", e.toString(), StaticKeys.LOG_ERROR);
+            }
+
         }
 
         return false;
@@ -129,23 +149,41 @@ public class WarnMailUtil {
             return false;
         }
         String key = cpuState.getHostname();
-        if (!StringUtils.isEmpty(WarnPools.MEM_WARN_MAP.get(key))) {
-            return false;
-        }
+        Integer ct = WarnPools.CPU_WARN_MAP.get(key);
+        if(ct== null)ct =0;
         if (cpuState.getSys() != null && cpuState.getSys() >= mailConfig.getCpuWarnVal()) {
             try {
+                ct++;
                 cW++;
+                if ( (ct > 5) && (ct % 5 !=0)) {
+                    return false;
+                }
                 String title = "CPU告警：" + cpuState.getHostname();
-                String commContent = "服务器：" + cpuState.getHostname() + ",CPU使用率为" + Double.valueOf(cpuState.getSys()) + "%，可能存在异常，请查看";
+                String commContent = "服务器：" + cpuState.getHostname() + ",CPU使用率为" + Double.valueOf(cpuState.getSys()) + "%，连续警告"+ct+"次，可能存在异常，请查看";
                 //发送邮件
                 sendMail(mailSet.getToMail(), title, commContent);
                 //标记已发送过告警信息
-                WarnPools.MEM_WARN_MAP.put(key, "1");
+                WarnPools.CPU_WARN_MAP.put(key, ct);
                 //记录发送信息
                 logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
             } catch (Exception e) {
                 logger.error("发送内存告警邮件失败：", e);
                 logInfoService.save("发送内存告警邮件错误", e.toString(), StaticKeys.LOG_ERROR);
+            }
+        }
+        else if(ct > 0){
+            try {
+                ct=0;
+                WarnPools.CPU_WARN_MAP.put(key, ct);
+                String title = "CPU报警解除：" + cpuState.getHostname();
+                String commContent = "服务器：" + cpuState.getHostname() + ",CPU使用率为" + Double.valueOf(cpuState.getSys()) + "%，恢复到报警线以下";
+                //发送邮件
+                sendMail(mailSet.getToMail(), title, commContent);
+                //记录发送信息
+                logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
+            } catch (Exception e) {
+                logger.error("发送内存告警邮件失败：", e);
+                logInfoService.save("发送内存报警解除邮件错误", e.toString(), StaticKeys.LOG_ERROR);
             }
         }
 
@@ -167,21 +205,34 @@ public class WarnMailUtil {
             return false;
         }
         String key = deskState.getHostname();
-        if (!StringUtils.isEmpty(WarnPools.DESK_WARN_MAP.get(key))) {
-            return false;
-        }
+        Integer ct = WarnPools.DESK_WARN_MAP.get(key);
+        if(ct == null)ct = 0;
         try{
             Double num2 = NumberFormat.getPercentInstance().parse(deskState.getUsePer()).doubleValue();
                 if (num2 >= 0.88) {
                     dW++;
+                    ct++;
+                    if ( (ct > 5) && (ct % 5 !=0)) {
+                        return false;
+                    }
                     String title = "硬盘告警：" + deskState.getHostname();
                     String commContent = "服务器：" + deskState.getHostname() + ",硬盘"+deskState.getFileSystem()+"使用率为" +deskState.getUsePer() + "，可能存在异常，请尽快处理";
                     //发送邮件
                     sendMail(mailSet.getToMail(), title, commContent);
                     //标记已发送过告警信息
-                    WarnPools.DESK_WARN_MAP.put(key, "1");
+                    WarnPools.DESK_WARN_MAP.put(key, ct);
                     //记录发送信息
                     logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
+                }
+                else if(ct > 0){
+                    ct =0;
+                    WarnPools.DESK_WARN_MAP.put(key, ct);
+                    String title = "硬盘空间恢复：" + deskState.getHostname();
+                    String commContent = "服务器：" + deskState.getHostname() + ",硬盘"+deskState.getFileSystem()+"使用率为" +deskState.getUsePer() + "，已经恢复到警报水平以下，请留意观察";
+                    //发送邮件
+                    sendMail(mailSet.getToMail(), title, commContent);
+                    logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
+
                 }
             } catch (Exception e) {
                 logger.error("发送磁盘告警邮件失败：", e);
@@ -208,17 +259,17 @@ public class WarnMailUtil {
         }
         String key = heathMonitor.getId();
         if (isDown) {
-            if (!StringUtils.isEmpty(WarnPools.MEM_WARN_MAP.get(key))) {
-                return false;
-            }
+            Integer ct = WarnPools.API_WARN_MAP.get(key);
+            if(ct == null)ct = 0;
             try {
                 sW++;
+                ct++;
                 String title = "服务接口检测告警：" + heathMonitor.getAppName();
                 String commContent = "服务接口：" + heathMonitor.getHeathUrl() + "，响应状态码为" + heathMonitor.getHeathStatus() + "，可能存在异常，请查看";
                 //发送邮件
                 sendMail(mailSet.getToMail(), title, commContent);
                 //标记已发送过告警信息
-                WarnPools.MEM_WARN_MAP.put(key, "1");
+                WarnPools.API_WARN_MAP.put(key, ct);
                 //记录发送信息
                 logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
             } catch (Exception e) {
@@ -226,7 +277,7 @@ public class WarnMailUtil {
                 logInfoService.save("发送服务健康检测告警邮件错误", e.toString(), StaticKeys.LOG_ERROR);
             }
         } else {
-            WarnPools.MEM_WARN_MAP.remove(key);
+            WarnPools.API_WARN_MAP.remove(key);
             try {
                 String title = "服务接口恢复正常通知：" + heathMonitor.getAppName();
                 String commContent = "服务接口恢复正常通知：" + heathMonitor.getHeathUrl() + "，响应状态码为" + heathMonitor.getHeathStatus() + "";
@@ -262,9 +313,8 @@ public class WarnMailUtil {
         if (StaticKeys.mailSet == null) {
             return false;
         }
-        MailSet mailSet = StaticKeys.mailSet;
         int count = tableInfo.getWarnCount();
-        if(count > 10 && count%5 != 0)return true;
+        if(count > 5 && count%5 != 0)return true;
 
             try {
                 dbW++;
@@ -337,10 +387,13 @@ public class WarnMailUtil {
             return false;
         }
         String key = systemInfo.getId();
+        Integer ct = WarnPools.HOST_WARN_MAP.get(key);
+        if(ct == null)ct=0;
         if (isDown) {
             hW++;
-            if (!StringUtils.isEmpty(WarnPools.MEM_WARN_MAP.get(key))) {
-                return false;
+            ct++;
+            if ( (ct > 5) && (ct % 5 !=0)) {
+                return true;
             }
             try {
                 String title = "主机下线告警：" + systemInfo.getHostname();
@@ -349,7 +402,7 @@ public class WarnMailUtil {
                 //发送邮件
                 sendMail(mailSet.getToMail(), title, commContent);
                 //标记已发送过告警信息
-                WarnPools.MEM_WARN_MAP.put(key, "1");
+                WarnPools.HOST_WARN_MAP.put(key, ct);
                 //记录发送信息
                 logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
             } catch (Exception e) {
@@ -357,7 +410,7 @@ public class WarnMailUtil {
                 logInfoService.save("发送主机下线告警邮件错误", e.toString(), StaticKeys.LOG_ERROR);
             }
         } else {
-            WarnPools.MEM_WARN_MAP.remove(key);
+            WarnPools.HOST_WARN_MAP.remove(key);
             try {
                 String title = "主机恢复上线通知：" + systemInfo.getHostname();
                 String commContent = "主机已经恢复上线：" + systemInfo.getHostname() + "，备注：" + systemInfo.getHostRemark()
@@ -390,19 +443,22 @@ public class WarnMailUtil {
             return false;
         }
         String key = appInfo.getId();
+        Integer ct = WarnPools.APP_WARN_MAP.get(key);
+        if(ct == null)ct=0;
         if (isDown) {
-            if (!StringUtils.isEmpty(WarnPools.MEM_WARN_MAP.get(key))) {
-                return false;
-            }
             try {
                 aW++;
+                ct++;
+                if ( (ct > 5) && (ct % 5 !=0)) {
+                    return true;
+                }
                 String title = "进程下线告警：" + appInfo.getHostname() + "，" + appInfo.getAppName();
                 String commContent = "进程已经超过10分钟未上报数据，可能已经下线：" + appInfo.getHostname() + "，" + appInfo.getAppName()
                         + "。如果不再监控该进程在列表删除即可，同时不会再收到该进程告警邮件";
                 //发送邮件
                 sendMail(mailSet.getToMail(), title, commContent);
                 //标记已发送过告警信息
-                WarnPools.MEM_WARN_MAP.put(key, "1");
+                WarnPools.APP_WARN_MAP.put(key, ct);
                 //记录发送信息
                 logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
             } catch (Exception e) {
@@ -410,7 +466,7 @@ public class WarnMailUtil {
                 logInfoService.save("发送进程下线告警错误", e.toString(), StaticKeys.LOG_ERROR);
             }
         } else {
-            WarnPools.MEM_WARN_MAP.remove(key);
+            WarnPools.APP_WARN_MAP.remove(key);
             try {
                 String title = "进程恢复上线通知：" + appInfo.getHostname() + "，" + appInfo.getAppName();
                 String commContent = "进程恢复上线通知：" + appInfo.getHostname() + "，" + appInfo.getAppName();
