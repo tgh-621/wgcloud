@@ -96,6 +96,7 @@ public class WarnMailUtil {
         if (memState.getUsePer() != null && memState.getUsePer() >= mailConfig.getMemWarnVal()) {
             mW++;
             ct++;
+            WarnPools.MEM_WARN_MAP.put(key, ct);
             if ( (ct > 5) && (ct % 5 !=0)) {
                 return false;
             }
@@ -104,8 +105,6 @@ public class WarnMailUtil {
                 String commContent = "服务器：" + memState.getHostname() + ",内存使用率为" + Double.valueOf(memState.getUsePer()) + "%，连续警告"+ct+"次,可能存在异常，请查看";
                 //发送邮件
                 sendMail(mailSet.getToMail(), title, commContent);
-                //标记已发送过告警信息
-                WarnPools.MEM_WARN_MAP.put(key, ct);
                 //记录发送信息
                 logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
             } catch (Exception e) {
@@ -155,6 +154,7 @@ public class WarnMailUtil {
             try {
                 ct++;
                 cW++;
+                WarnPools.CPU_WARN_MAP.put(key, ct);
                 if ( (ct > 5) && (ct % 5 !=0)) {
                     return false;
                 }
@@ -162,8 +162,7 @@ public class WarnMailUtil {
                 String commContent = "服务器：" + cpuState.getHostname() + ",CPU使用率为" + Double.valueOf(cpuState.getSys()) + "%，连续警告"+ct+"次，可能存在异常，请查看";
                 //发送邮件
                 sendMail(mailSet.getToMail(), title, commContent);
-                //标记已发送过告警信息
-                WarnPools.CPU_WARN_MAP.put(key, ct);
+
                 //记录发送信息
                 logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
             } catch (Exception e) {
@@ -209,9 +208,10 @@ public class WarnMailUtil {
         if(ct == null)ct = 0;
         try{
             Double num2 = NumberFormat.getPercentInstance().parse(deskState.getUsePer()).doubleValue();
-                if (num2 >= 0.88) {
+                if (num2 >= 0.9) {
                     dW++;
                     ct++;
+                    WarnPools.DESK_WARN_MAP.put(key, ct);
                     if ( (ct > 5) && (ct % 5 !=0)) {
                         return false;
                     }
@@ -219,8 +219,6 @@ public class WarnMailUtil {
                     String commContent = "服务器：" + deskState.getHostname() + ",硬盘"+deskState.getFileSystem()+"使用率为" +deskState.getUsePer() + "，可能存在异常，请尽快处理";
                     //发送邮件
                     sendMail(mailSet.getToMail(), title, commContent);
-                    //标记已发送过告警信息
-                    WarnPools.DESK_WARN_MAP.put(key, ct);
                     //记录发送信息
                     logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
                 }
@@ -392,6 +390,7 @@ public class WarnMailUtil {
         if (isDown) {
             hW++;
             ct++;
+            WarnPools.HOST_WARN_MAP.put(key, ct);
             if ( (ct > 5) && (ct % 5 !=0)) {
                 return true;
             }
@@ -401,8 +400,7 @@ public class WarnMailUtil {
                         + "。如果不再监控该主机在列表删除即可，同时不会再收到该主机告警邮件";
                 //发送邮件
                 sendMail(mailSet.getToMail(), title, commContent);
-                //标记已发送过告警信息
-                WarnPools.HOST_WARN_MAP.put(key, ct);
+
                 //记录发送信息
                 logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
             } catch (Exception e) {
@@ -449,6 +447,7 @@ public class WarnMailUtil {
             try {
                 aW++;
                 ct++;
+                WarnPools.APP_WARN_MAP.put(key, ct);
                 if ( (ct > 5) && (ct % 5 !=0)) {
                     return true;
                 }
@@ -457,8 +456,7 @@ public class WarnMailUtil {
                         + "。如果不再监控该进程在列表删除即可，同时不会再收到该进程告警邮件";
                 //发送邮件
                 sendMail(mailSet.getToMail(), title, commContent);
-                //标记已发送过告警信息
-                WarnPools.APP_WARN_MAP.put(key, ct);
+
                 //记录发送信息
                 logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
             } catch (Exception e) {

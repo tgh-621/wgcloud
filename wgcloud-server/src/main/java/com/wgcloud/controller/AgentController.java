@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -121,15 +122,27 @@ public class AgentController {
                 BatchData.SYSTEM_INFO_LIST.add(bean);
             }
             if (deskStateList != null) {
+                Double maxValue = 0d;
+                DeskState maxBean = null;
                 for (Object jsonObjects : deskStateList) {
                     DeskState bean = new DeskState();
                     BeanUtil.copyProperties(jsonObjects, bean);
                     BatchData.DESK_STATE_LIST.add(bean);
-                    Runnable runnable = () -> {
-                        WarnMailUtil.sendDeskWarnInfo(bean);
-                    };
-                    executor.execute(runnable);
+                    try {
+                        Double num2 = NumberFormat.getPercentInstance().parse(bean.getUsePer()).doubleValue();
+                        if (num2 >= maxValue) {
+                            maxValue = num2;
+                            maxBean = bean;
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
+                DeskState finalMaxBean = maxBean;
+                Runnable runnable = () -> {
+                    WarnMailUtil.sendDeskWarnInfo(finalMaxBean);
+                };
+                executor.execute(runnable);
             }
             resultJson.put("result", "success");
         } catch (Exception e) {
