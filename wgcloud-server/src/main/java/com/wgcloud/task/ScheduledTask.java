@@ -224,11 +224,11 @@ public class ScheduledTask {
             }
             ScriptEngineManager manager = new ScriptEngineManager();
             ScriptEngine engine = manager.getEngineByName("javascript");
-            engine.eval("function add (html, json) {" +
+            engine.eval("function heathTest (html, json) {" +
                     js+
                     "return true; }");
             Invocable jsInvoke = (Invocable) engine;
-            Object res = jsInvoke.invokeFunction("add", new Object[]{html, json});
+            Object res = jsInvoke.invokeFunction("heathTest", new Object[]{html, json});
             return (Boolean)res;
         }catch (Exception ex){
             ex.printStackTrace();

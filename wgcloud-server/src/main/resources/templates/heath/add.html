@@ -84,8 +84,8 @@
                     <textarea rows="5" type="text" autocomplete="off"  th:text="${heathMonitor.requestParam}" class="validate[maxSize[2550]] form-control" name="requestParam" id="requestParam" placeholder="参数统一用json格式,后台根据参数类型自动转换{}"></textarea>
                 </div>
                 <div class="form-group">
-                    <label >测试脚本</label>
-                    <textarea rows="5" type="text" autocomplete="off"  th:text="${heathMonitor.testScript}" class="validate[maxSize[2550]] form-control" name="testScript" id="testScript" placeholder="测试脚本，如果为空只判断状态码"></textarea>
+                    <label >测试脚本(js脚本，已经有两个变量html和json,返回true或false,你只需要填写中间逻辑部分)</label>
+                    <textarea rows="5" type="text" autocomplete="off"  th:text="${heathMonitor.testScript}" class="validate[maxSize[2550]] form-control" name="testScript" id="testScript" placeholder="function test (html, json) {&#13;&#10;//你的逻辑判断代码&#13;&#10;return true; }"></textarea>
                 </div>
                 <div class="form-group">
                     <label >前置服务名称</label>
