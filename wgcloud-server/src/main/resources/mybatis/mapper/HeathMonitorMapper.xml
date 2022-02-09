@@ -7,10 +7,20 @@
 		<result column="HEATH_URL" property="heathUrl" jdbcType="CHAR" />
 		<result column="HEATH_STATUS" property="heathStatus" jdbcType="CHAR" />
 		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="HEADER_PARAM" property="headerParam" jdbcType="VARCHAR" />
+		<result column="REQUEST_PARAM" property="requestParam" jdbcType="VARCHAR" />
+		<result column="LAST_RESULT" property="lastResult" jdbcType="VARCHAR" />
+		<result column="TEST_SCRIPT" property="testScript" jdbcType="VARCHAR" />
+		<result column="LAST_STATUS" property="lastStatus" jdbcType="INTEGER" />
+		<result column="FRONT_ID" property="frontId" jdbcType="VARCHAR" />
+		<result column="LAST_TIME" property="lastTime" jdbcType="TIMESTAMP" />
+		<result column="PARAM_TYPE" property="paramType" jdbcType="VARCHAR" />
+		<result column="REQUEST_TYPE" property="requestType" jdbcType="VARCHAR" />
+		<result column="COOKIE_INFO" property="cookieInfo" jdbcType="VARCHAR" />
 	</resultMap>
-	
+
 	<sql id="tableColumnList">
-		ID,APP_NAME, HEATH_URL,HEATH_STATUS,CREATE_TIME
+		ID,APP_NAME, HEATH_URL,HEATH_STATUS,CREATE_TIME,HEADER_PARAM,REQUEST_PARAM,LAST_RESULT,TEST_SCRIPT,LAST_STATUS,FRONT_ID,LAST_TIME,PARAM_TYPE,REQUEST_TYPE,COOKIE_INFO
 	</sql>
 
 	<sql id="queryByParams">
@@ -25,13 +35,13 @@
 	<select id="selectById" resultMap="resultMap" parameterType="java.lang.String">
 		SELECT
 		<include refid="tableColumnList" />
-		FROM HEATH_MONITOR 
-		WHERE ID=#{id} 
+		FROM HEATH_MONITOR
+		WHERE ID=#{id}
 	</select>
-	
-	
+
+
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-		DELETE FROM HEATH_MONITOR 
+		DELETE FROM HEATH_MONITOR
 		WHERE ID = #{id}
 	</delete>
 
@@ -39,10 +49,9 @@
 		DELETE FROM HEATH_MONITOR WHERE   <![CDATA[  CREATE_TIME <=#{endTime}]]>
 	</delete>
 
-
 	<delete id="deleteById" parameterType="java.lang.String">
 		DELETE FROM
-		HEATH_MONITOR 
+		HEATH_MONITOR
 		WHERE ID IN
 		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
 			#{item}
@@ -50,30 +59,52 @@
 	</delete>
 
 	<insert id="save" parameterType="com.wgcloud.entity.HeathMonitor">
-		INSERT INTO HEATH_MONITOR 
+		INSERT INTO HEATH_MONITOR
     	<trim prefix="(" suffix=")" suffixOverrides="," >
       		<if test="id != null" >ID,</if>
       		<if test="appName != null">APP_NAME,</if>
 			<if test="heathUrl != null">HEATH_URL,</if>
 			<if test="heathStatus != null">HEATH_STATUS,</if>
-      		<if test="createTime != null" >CREATE_TIME</if>
+      		<if test="createTime != null" >CREATE_TIME,</if>
+			<if test="headerParam != null" >HEADER_PARAM,</if>
+			<if test="requestParam != null" >REQUEST_PARAM,</if>
+			<if test="lastResult != null" >LAST_RESULT,</if>
+			<if test="testScript != null" >TEST_SCRIPT,</if>
+			<if test="lastStatus != null" >LAST_STATUS,</if>
+			<if test="frontId != null" >FRONT_ID,</if>
+			<if test="lastTime != null" >LAST_TIME,</if>
+			<if test="paramType != null" >PARAM_TYPE,</if>
+			<if test="requestType != null" >REQUEST_TYPE,</if>
+			<if test="cookieInfo != null" >COOKIE_INFO</if>
+
     	</trim>
     	<trim prefix="values (" suffix=")" suffixOverrides="," >
       		<if test="id != null" >#{id},</if>
       		<if test="appName != null" >#{appName},</if>
 			<if test="heathUrl != null" >#{heathUrl},</if>
 			<if test="heathStatus != null" >#{heathStatus},</if>
-      		<if test="createTime != null" >#{createTime}</if>
+      		<if test="createTime != null" >#{createTime},</if>
+			<if test="headerParam != null" >#{headerParam},</if>
+			<if test="requestParam != null" >#{requestParam},</if>
+			<if test="lastResult != null" >#{lastResult},</if>
+			<if test="testScript != null" >#{testScript},</if>
+			<if test="lastStatus != null" >#{lastStatus},</if>
+			<if test="frontId != null" >#{frontId},</if>
+			<if test="lastTime != null" >#{lastTime},</if>
+			<if test="paramType != null" >#{paramType},</if>
+			<if test="requestType != null" >#{requestType},</if>
+			<if test="cookieInfo != null" >#{cookieInfo}</if>
     	</trim>
 	</insert>
 
 	<insert id="insertList" parameterType="java.util.List" >
-		INSERT INTO HEATH_MONITOR (ID,APP_NAME,HEATH_URL,HEATH_STATUS,CREATE_TIME)  VALUES
+		INSERT INTO HEATH_MONITOR (ID,APP_NAME,HEATH_URL,HEATH_STATUS,CREATE_TIME,HEADER_PARAM,
+		REQUEST_PARAM,LAST_RESULT,TEST_SCRIPT,LAST_STATUS,FRONT_ID,LAST_TIME,PARAM_TYPE,REQUEST_TYPE,COOKIE_INFO)  VALUES
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.id},#{item.appName},#{item.heathUrl},#{item.heathStatus},#{item.createTime})
+			(#{item.id},#{item.appName},#{item.heathUrl},#{item.heathStatus},#{item.createTime},
+			#{item.headerParam},#{item.requestParam},#{item.lastResult},#{item.testScript},#{item.lastStatus},#{item.frontId},#{item.lastTime},#{item.paramType},#{item.requestType},#{item.cookieInfo})
 		</foreach>
 	</insert>
-
 
 	<update id="updateList" parameterType="java.util.List" >
 		<foreach collection="list" item="item" index="index"  separator=";">
@@ -91,11 +122,40 @@
 				<if test="item.createTime != null" >
 					CREATE_TIME= #{item.createTime},
 				</if>
+				<if test="item.headerParam != null" >
+					HEADER_PARAM= #{item.headerParam},
+				</if>
+				<if test="item.requestParam != null" >
+					REQUEST_PARAM= #{item.requestParam},
+				</if>
+				<if test="item.lastResult != null" >
+					LAST_RESULT= #{item.lastResult},
+				</if>
+				<if test="item.lastStatus != null" >
+					LAST_STATUS= #{item.lastStatus},
+				</if>
+				<if test="item.frontId != null" >
+					FRONT_ID= #{item.frontId},
+				</if>
+				<if test="item.lastTime != null" >
+					LAST_TIME= #{item.lastTime},
+				</if>
+				<if test="item.paramType != null" >
+					PARAM_TYPE= #{item.paramType},
+				</if>
+				<if test="item.requestType != null" >
+					REQUEST_TYPE= #{item.requestType},
+				</if>
+				<if test="item.cookieInfo != null" >
+					COOKIE_INFO= #{item.cookieInfo}
+				</if>
+				<if test="item.testScript != null" >
+					TEST_SCRIPT= #{item.testScript}
+				</if>
 			</set>
 			WHERE ID = #{item.id}
 		</foreach>
 	</update>
-
 
 	<update id="updateById" parameterType="com.wgcloud.entity.HeathMonitor">
 		UPDATE HEATH_MONITOR
@@ -110,7 +170,37 @@
 				HEATH_STATUS = #{heathStatus},
 			</if>
 			<if test="createTime != null">
-				CREATE_TIME = #{createTime}
+				CREATE_TIME = #{createTime},
+			</if>
+			<if test="headerParam != null" >
+				HEADER_PARAM= #{headerParam},
+			</if>
+			<if test="requestParam != null" >
+				REQUEST_PARAM= #{requestParam},
+			</if>
+			<if test="lastResult != null" >
+				LAST_RESULT= #{lastResult},
+			</if>
+			<if test="lastStatus != null" >
+				LAST_STATUS= #{lastStatus},
+			</if>
+			<if test="frontId != null" >
+				FRONT_ID= #{frontId},
+			</if>
+			<if test="lastTime != null" >
+				LAST_TIME= #{lastTime},
+			</if>
+			<if test="paramType != null" >
+				PARAM_TYPE= #{paramType},
+			</if>
+			<if test="requestType != null" >
+				REQUEST_TYPE= #{requestType},
+			</if>
+			<if test="cookieInfo != null" >
+				COOKIE_INFO= #{cookieInfo}
+			</if>
+			<if test="testScript != null" >
+				TEST_SCRIPT= #{testScript}
 			</if>
 		</set>
 		WHERE ID = #{id}
@@ -133,7 +223,7 @@
 		</where>
 		 ORDER BY CREATE_TIME DESC
 	</select>
-	
+
 	<select id="selectByParams" parameterType="map" resultMap="resultMap">
 		SELECT
 		<include refid="tableColumnList" />
@@ -143,6 +233,5 @@
 		</where>
 		 ORDER BY CREATE_TIME DESC
 	</select>
-	
-	
+
 </mapper>

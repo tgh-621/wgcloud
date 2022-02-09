@@ -57,7 +57,7 @@ public class WarnMailUtil {
         }
             try {
                 String title = "服务器监控日报：" + DateUtil.getCurrentDate();
-                String commContent = "昨日报警情况如下:<br/>内存报警:"+mW+"次<br/>　" +
+                String commContent = "昨日报警情况如下:<br/>内存报警:"+mW+"次<br/>" +
                         "CPU报警:"+cW+"次<br/>" +
                         "磁盘报警:"+dW+"次<br/>" +
                         "应用报警:"+aW+"次<br/>" +
@@ -212,7 +212,7 @@ public class WarnMailUtil {
                     dW++;
                     ct++;
                     WarnPools.DESK_WARN_MAP.put(key, ct);
-                    if ( (ct > 5) && (ct % 5 !=0)) {
+                    if ( (ct > 5) && (ct % 20 !=0)) {
                         return false;
                     }
                     String title = "硬盘告警：" + deskState.getHostname();
@@ -263,7 +263,7 @@ public class WarnMailUtil {
                 sW++;
                 ct++;
                 String title = "服务接口检测告警：" + heathMonitor.getAppName();
-                String commContent = "服务接口：" + heathMonitor.getHeathUrl() + "，响应状态码为" + heathMonitor.getHeathStatus() + "，可能存在异常，请查看";
+                String commContent = "服务接口：" + heathMonitor.getHeathUrl() + "，响应状态码为" + heathMonitor.getHeathStatus() + "，可能存在异常，请查看<br/>返回结果："+heathMonitor.getLastResult();
                 //发送邮件
                 sendMail(mailSet.getToMail(), title, commContent);
                 //标记已发送过告警信息

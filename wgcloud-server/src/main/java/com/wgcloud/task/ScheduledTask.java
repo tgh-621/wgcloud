@@ -2,6 +2,10 @@ package com.wgcloud.task;
 
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONValidator;
+import com.alibaba.fastjson.TypeReference;
 import com.wgcloud.config.CommonConfig;
 import com.wgcloud.entity.*;
 import com.wgcloud.mapper.*;
@@ -15,12 +19,18 @@ import com.wgcloud.util.msg.WarnPools;
 import com.wgcloud.util.staticvar.BatchData;
 import com.wgcloud.util.staticvar.StaticKeys;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -206,12 +216,105 @@ public class ScheduledTask {
 
     }
 
+    private Boolean heathMonitorExeJs(String js,String html){
+        try {
+            JSONObject json = null;
+            if(JSONValidator.from(html).validate()){
+                json = JSON.parseObject(html);
+            }
+            ScriptEngineManager manager = new ScriptEngineManager();
+            ScriptEngine engine = manager.getEngineByName("javascript");
+            engine.eval("function add (html, json) {" +
+                    js+
+                    "return true; }");
+            Invocable jsInvoke = (Invocable) engine;
+            Object res = jsInvoke.invokeFunction("add", new Object[]{html, json});
+            return (Boolean)res;
+        }catch (Exception ex){
+            ex.printStackTrace();
+            return false;
+        }
 
+
+    }
+
+    private Boolean execHeathMonitorTask(List<HeathMonitor> heathMonitorAllList,HeathMonitor curHeathMonitor) throws IOException {
+        if(curHeathMonitor.getExeState() !=0)return "200".equals(curHeathMonitor.getHeathStatus());
+        HeathMonitor frontMonitor = null;
+        if(!StringUtils.isEmpty(curHeathMonitor.getFrontId())){
+            //优先执行依赖的任务
+            for(int i = 0;i < heathMonitorAllList.size();i++){
+                HeathMonitor h =  heathMonitorAllList.get(i);
+                if(h.getAppName().equals(curHeathMonitor.getFrontId())){
+                    execHeathMonitorTask(heathMonitorAllList,h);
+                    frontMonitor = h;
+                    break;
+                }
+            }
+        }
+        curHeathMonitor.setExeState(1);
+        Connection connection = Jsoup.connect(curHeathMonitor.getHeathUrl());
+        connection.timeout(120000).ignoreContentType(true).ignoreHttpErrors(true).post().html();
+        Map<String,String> cookies = new HashMap<>();
+        if(frontMonitor != null){
+            //cookie带走
+             cookies =  JSON.parseObject(frontMonitor.getCookieInfo(),new TypeReference<HashMap<String,String>>() {});
+             connection.cookies(cookies);
+        }
+        String requestHeaders = curHeathMonitor.getHeaderParam();
+        if(!StringUtils.isEmpty(requestHeaders)){
+            Map<String,String> headers =  JSON.parseObject(requestHeaders,new TypeReference<HashMap<String,String>>() {});
+            connection.headers(headers);
+        }
+        connection.header("Content-Type",curHeathMonitor.getParamType());
+        //connection.header("Host","gdwry.bigdatacd.com:18091");
+        String requestParams = curHeathMonitor.getRequestParam();
+        if(!StringUtils.isEmpty(requestParams)){
+            if(curHeathMonitor.getParamType().equals("application/x-www-form-urlencoded")){
+                Map<String,String> params =  JSON.parseObject(requestParams,new TypeReference<HashMap<String,String>>() {});
+                connection.data(params);
+            }
+            else{
+                connection.requestBody(requestParams);
+            }
+        }
+
+        //get&post
+        if("post".equals(curHeathMonitor.getRequestType())){
+            connection.method(Connection.Method.POST);
+        }
+        else{
+            connection.method(Connection.Method.GET);
+        }
+        Connection.Response response = connection.execute();
+        int code =  response.statusCode();
+        curHeathMonitor.setHeathStatus(""+code);
+        String result = response.body();
+        cookies.putAll(response.cookies());
+        curHeathMonitor.setCookieInfo(JSON.toJSONString(cookies));
+        curHeathMonitor.setLastResult(result);
+        curHeathMonitor.setLastStatus(code);
+        curHeathMonitor.setLastTime(new Date());
+
+        if(code !=200){
+            //出错了，就不执行结果判断了
+            return false;
+        }
+
+        //script
+        if(!StringUtils.isEmpty(curHeathMonitor.getTestScript())) {
+            Boolean ret =  heathMonitorExeJs(curHeathMonitor.getTestScript(), result);
+            if(!ret)curHeathMonitor.setHeathStatus("-1");
+            return ret;
+        }
+        //成功
+        return true;
+    }
     /**
      * 90秒后执行，之后每隔10分钟执行, 单位：ms。
      * 检测心跳
      */
-    @Scheduled(initialDelay = 90000L, fixedRateString = "${base.heathTimes}")
+    @Scheduled(initialDelay = 10000L, fixedRateString = "${base.heathTimes}")
     public void heathMonitorTask() {
         logger.info("heathMonitorTask------------" + DateUtil.getDateTimeString(new Date()));
         Map<String, Object> params = new HashMap<>();
@@ -221,6 +324,52 @@ public class ScheduledTask {
         try {
             List<HeathMonitor> heathMonitorAllList = heathMonitorService.selectAllByParams(params);
             if (heathMonitorAllList.size() > 0) {
+                for(int i = 0;i < heathMonitorAllList.size();i++){
+                    HeathMonitor h =  heathMonitorAllList.get(i);
+                    Boolean bRet = false;
+                    String error = "";
+                    try {
+                         bRet =  execHeathMonitorTask(heathMonitorAllList, h);
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                        error = (ex.getMessage());
+                        h.setHeathStatus("-2");
+                    }
+                        if(!bRet){
+                            LogInfo logInfo = new LogInfo();
+                            logInfo.setHostname("服务接口检测异常：" + h.getAppName());
+                            logInfo.setInfoContent("服务接口检测异常：" + h.getAppName() + "，" + h.getHeathUrl() + "，返回状态" + h.getHeathStatus()+"<br/>返回数据:"+h.getLastResult()+"<br/>"+error);
+                            logInfo.setState(StaticKeys.LOG_ERROR);
+                            logInfoList.add(logInfo);
+                            Runnable runnable = () -> {
+                                WarnMailUtil.sendHeathInfo(h, true);
+                            };
+                            executor.execute(runnable);
+                        }
+                        else{
+                            if ((WarnPools.API_WARN_MAP.get(h.getId()))!= null) {
+                                Runnable runnable = () -> {
+                                    WarnMailUtil.sendHeathInfo(h, false);
+                                };
+                                executor.execute(runnable);
+                            }
+                        }
+
+                    HeathMonitor heathMonitor = new HeathMonitor();
+                    heathMonitor.setId(h.getId());
+                    heathMonitor.setCookieInfo(h.getCookieInfo());
+                    heathMonitor.setLastResult(h.getLastResult());
+                    heathMonitor.setLastStatus(h.getLastStatus());
+                    heathMonitor.setLastTime(h.getLastTime());
+                    heathMonitor.setHeathStatus(h.getHeathStatus());
+                    heathMonitors.add(heathMonitor);
+
+                }
+                heathMonitorService.updateRecord(heathMonitors);
+                if (logInfoList.size() > 0) {
+                    logInfoService.saveRecord(logInfoList);
+                }
+                /*
                 for (HeathMonitor h : heathMonitorAllList) {
                     int status = 500;
                     status = restUtil.get(h.getHeathUrl());
@@ -249,10 +398,12 @@ public class ScheduledTask {
                         }
                     }
                 }
+
                 heathMonitorService.updateRecord(heathMonitors);
                 if (logInfoList.size() > 0) {
                     logInfoService.saveRecord(logInfoList);
                 }
+                */
             }
         } catch (Exception e) {
             logger.error("服务接口检测任务错误", e);

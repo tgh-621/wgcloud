@@ -55,9 +55,43 @@
                     <input type="text" autocomplete="off"  th:value="${heathMonitor.appName}" class="validate[required,maxSize[50]] form-control" name="appName" id="appName" placeholder="输入应用服务名称">
                 </div>
                 <div class="form-group">
-                    <label for="fromPwd"><font color="red">*</font>服务接口URL（必须为http，get请求方式，返回状态码为200即为正常）</label>
+                    <label for="fromPwd"><font color="red">*</font>服务接口URL（必须为http或https）</label>
                     <input type="text" autocomplete="off"  th:value="${heathMonitor.heathUrl}" class="validate[required,maxSize[255]] form-control" name="heathUrl" id="heathUrl" placeholder="如http://192.168.1.1:9999/wgcloud/heath">
                 </div>
+                <div class="form-group">
+                    <label><font color="red">*</font>请求类型</label>
+                    <select class="validate[required] form-control"  name="requestType" id="requestType">
+                        <option th:selected="${heathMonitor.requestType=='get'}"    value="get" >get</option>
+                        <option th:selected="${heathMonitor.requestType=='post'}"    value="post" >post</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label >请求头header</label>
+                    <textarea rows="5" type="text" autocomplete="off"  th:text="${heathMonitor.headerParam}" class="validate[maxSize[2550]] form-control" name="headerParam" id="headerParam" placeholder="采用json格式填入"></textarea>
+                </div>
+                <div class="form-group">
+                    <label><font color="red">*</font>请求参数类型</label>
+                    <select  class="validate[required] form-control"  name="paramType" id="paramType">
+                        <option th:selected="${heathMonitor.paramType=='application/x-www-form-urlencoded'}"   value="application/x-www-form-urlencoded" >application/x-www-form-urlencoded</option>
+                        <option th:selected="${heathMonitor.paramType=='application/json'}"   value="application/json">application/json</option>
+                        <option th:selected="${heathMonitor.paramType=='text/xml'}"   value="text/xml" >text/xml</option>
+                        <option th:selected="${heathMonitor.paramType=='application/octet-stream'}"   value="application/octet-stream" >application/octet-stream</option>
+                        <option th:selected="${heathMonitor.paramType=='multipart/form-data'}"   value="multipart/form-data" >multipart/form-data</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label >请求参数</label>
+                    <textarea rows="5" type="text" autocomplete="off"  th:text="${heathMonitor.requestParam}" class="validate[maxSize[2550]] form-control" name="requestParam" id="requestParam" placeholder="参数统一用json格式,后台根据参数类型自动转换{}"></textarea>
+                </div>
+                <div class="form-group">
+                    <label >测试脚本</label>
+                    <textarea rows="5" type="text" autocomplete="off"  th:text="${heathMonitor.testScript}" class="validate[maxSize[2550]] form-control" name="testScript" id="testScript" placeholder="测试脚本，如果为空只判断状态码"></textarea>
+                </div>
+                <div class="form-group">
+                    <label >前置服务名称</label>
+                    <input type="text" autocomplete="off"  th:value="${heathMonitor.frontId}" class="validate[maxSize[50]] form-control" name="frontId" id="frontId" placeholder="依赖的应用服务监控">
+                </div>
+
             </div>
             <!-- /.card-body -->
 
