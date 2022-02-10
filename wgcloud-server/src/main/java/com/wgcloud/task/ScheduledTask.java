@@ -2,10 +2,7 @@ package com.wgcloud.task;
 
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONValidator;
-import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.*;
 import com.wgcloud.config.CommonConfig;
 import com.wgcloud.entity.*;
 import com.wgcloud.mapper.*;
@@ -31,6 +28,8 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -216,22 +215,28 @@ public class ScheduledTask {
 
     }
 
-    private Boolean heathMonitorExeJs(String js,String html){
+    private Boolean heathMonitorExeJs(String js,String html,HeathMonitor heathMonitor){
         try {
             JSONObject json = null;
+            JSONArray jsona = null;
             if(JSONValidator.from(html).validate()){
-                json = JSON.parseObject(html);
+                try {
+                    json = JSON.parseObject(html);
+                }catch (Exception e){
+                    jsona = JSON.parseArray(html);
+                }
             }
             ScriptEngineManager manager = new ScriptEngineManager();
             ScriptEngine engine = manager.getEngineByName("javascript");
-            engine.eval("function heathTest (html, json) {" +
+            engine.eval("function heathTest (html, json,jsona) {" +
                     js+
                     "return true; }");
             Invocable jsInvoke = (Invocable) engine;
-            Object res = jsInvoke.invokeFunction("heathTest", new Object[]{html, json});
+            Object res = jsInvoke.invokeFunction("heathTest", new Object[]{html,json,jsona});
             return (Boolean)res;
         }catch (Exception ex){
             ex.printStackTrace();
+            heathMonitor.setLastResult(heathMonitor.getLastResult() +"\r\n"+ex.getMessage()+"\r\n"+getErrorInfoFromException(ex));
             return false;
         }
 
@@ -254,7 +259,7 @@ public class ScheduledTask {
         }
         curHeathMonitor.setExeState(1);
         Connection connection = Jsoup.connect(curHeathMonitor.getHeathUrl());
-        connection.timeout(120000).ignoreContentType(true).ignoreHttpErrors(true).post().html();
+        connection.timeout(120000).ignoreContentType(true).ignoreHttpErrors(true);
         Map<String,String> cookies = new HashMap<>();
         if(frontMonitor != null){
             //cookie带走
@@ -303,18 +308,32 @@ public class ScheduledTask {
 
         //script
         if(!StringUtils.isEmpty(curHeathMonitor.getTestScript())) {
-            Boolean ret =  heathMonitorExeJs(curHeathMonitor.getTestScript(), result);
+            Boolean ret =  heathMonitorExeJs(curHeathMonitor.getTestScript(), result,curHeathMonitor);
             if(!ret)curHeathMonitor.setHeathStatus("-1");
             return ret;
         }
         //成功
         return true;
     }
+
+    public String getErrorInfoFromException(Exception e) {
+        try {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String retStr = sw.toString();
+            sw.close();
+            pw.close();
+            return retStr;
+        } catch (Exception e2) {
+            return "ErrorInfoFromException";
+        }
+    }
     /**
      * 90秒后执行，之后每隔10分钟执行, 单位：ms。
      * 检测心跳
      */
-    @Scheduled(initialDelay = 10000L, fixedRateString = "${base.heathTimes}")
+    @Scheduled(initialDelay = 20000L, fixedDelayString = "${base.heathTimes}")
     public void heathMonitorTask() {
         logger.info("heathMonitorTask------------" + DateUtil.getDateTimeString(new Date()));
         Map<String, Object> params = new HashMap<>();
@@ -334,6 +353,7 @@ public class ScheduledTask {
                         ex.printStackTrace();
                         error = (ex.getMessage());
                         h.setHeathStatus("-2");
+                        h.setLastResult(error+"\r\n"+getErrorInfoFromException(ex));
                     }
                         if(!bRet){
                             LogInfo logInfo = new LogInfo();

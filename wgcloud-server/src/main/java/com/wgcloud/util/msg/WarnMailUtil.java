@@ -262,12 +262,16 @@ public class WarnMailUtil {
             try {
                 sW++;
                 ct++;
+                //标记已发送过告警信息
+                WarnPools.API_WARN_MAP.put(key, ct);
+                if ( (ct > 5) && (ct % 5 !=0)) {
+                    return false;
+                }
                 String title = "服务接口检测告警：" + heathMonitor.getAppName();
                 String commContent = "服务接口：" + heathMonitor.getHeathUrl() + "，响应状态码为" + heathMonitor.getHeathStatus() + "，可能存在异常，请查看<br/>返回结果："+heathMonitor.getLastResult();
                 //发送邮件
                 sendMail(mailSet.getToMail(), title, commContent);
-                //标记已发送过告警信息
-                WarnPools.API_WARN_MAP.put(key, ct);
+
                 //记录发送信息
                 logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
             } catch (Exception e) {
