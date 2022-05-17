@@ -116,13 +116,8 @@ public class AgentController {
                     BatchData.APP_STATE_LIST.add(appState);
                 }
             }
-            if (systemInfo != null) {
-                SystemInfo bean = new SystemInfo();
-                BeanUtil.copyProperties(systemInfo, bean);
-                BatchData.SYSTEM_INFO_LIST.add(bean);
-            }
+            Double maxValue = 0d;
             if (deskStateList != null) {
-                Double maxValue = 0d;
                 DeskState maxBean = null;
                 for (Object jsonObjects : deskStateList) {
                     DeskState bean = new DeskState();
@@ -143,6 +138,12 @@ public class AgentController {
                     WarnMailUtil.sendDeskWarnInfo(finalMaxBean);
                 };
                 executor.execute(runnable);
+            }
+            if (systemInfo != null) {
+                SystemInfo bean = new SystemInfo();
+                BeanUtil.copyProperties(systemInfo, bean);
+                bean.setDiskPer(maxValue.doubleValue()*100);
+                BatchData.SYSTEM_INFO_LIST.add(bean);
             }
             resultJson.put("result", "success");
         } catch (Exception e) {

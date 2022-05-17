@@ -8,16 +8,17 @@
 		<result column="VERSION_DETAIL" property="versionDetail" jdbcType="CHAR" />
 		<result column="MEM_PER" property="memPer" jdbcType="DOUBLE" />
 		<result column="CPU_PER" property="cpuPer" jdbcType="DOUBLE" />
+		<result column="DISK_PER" property="diskPer" jdbcType="DOUBLE" />
 		<result column="CPU_CORE_NUM" property="cpuCoreNum" jdbcType="CHAR" />
 		<result column="CPU_XH" property="cpuXh" jdbcType="CHAR" />
 		<result column="STATE" property="state" jdbcType="CHAR" />
 		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
 	</resultMap>
-	
+
 	<sql id="tableColumnList">
-		ID,HOST_NAME, VERSION, VERSION_DETAIL, MEM_PER, CPU_PER,CPU_CORE_NUM,CPU_XH,CREATE_TIME,STATE
+		ID,HOST_NAME, VERSION, VERSION_DETAIL, MEM_PER, CPU_PER,DISK_PER,CPU_CORE_NUM,CPU_XH,CREATE_TIME,STATE
 	</sql>
-	
+
 	<sql id="queryByParams">
 		<if test="hostname != null">
 			<![CDATA[ AND HOST_NAME = #{hostname} ]]>
@@ -31,30 +32,36 @@
 		<if test="cpuPer != null">
 			<![CDATA[ AND CPU_PER >= #{cpuPer} ]]>
 		</if>
+		<if test="diskPer != null">
+			<![CDATA[ AND DISK_PER >= #{diskPer} ]]>
+		</if>
+		<if test="diskPerLe != null">
+			<![CDATA[ AND DISK_PER >= #{diskPerLe} ]]>
+		</if>
 		<if test="cpuPerLe != null">
 			<![CDATA[ AND CPU_PER <= #{cpuPerLe} ]]>
 		</if>
 	</sql>
-	
+
 	<select id="selectById" resultMap="resultMap" parameterType="java.lang.String">
 		SELECT
 		<include refid="tableColumnList" />
-		FROM SYSTEM_INFO WHERE ID=#{id} 
+		FROM SYSTEM_INFO WHERE ID=#{id}
 	</select>
-	
-	
+
+
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
 		DELETE FROM SYSTEM_INFO WHERE ID = #{id}
 	</delete>
-	
+
 	<delete id="deleteByAccountAndDate"  parameterType="map">
 		DELETE FROM SYSTEM_INFO WHERE   <![CDATA[  CREATE_TIME <=#{endTime}]]>
 	</delete>
-	
+
 	<delete id="deleteByAccHname"  parameterType="map">
 		DELETE FROM SYSTEM_INFO WHERE <![CDATA[  HOST_NAME  = #{hostname} ]]>
 	</delete>
-	
+
 	<delete id="deleteById" parameterType="java.lang.String">
 		DELETE FROM SYSTEM_INFO WHERE ID IN
 		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
@@ -63,9 +70,9 @@
 	</delete>
 
 	<insert id="insertList" parameterType="java.util.List" >
-		INSERT INTO SYSTEM_INFO (ID,HOST_NAME, VERSION, VERSION_DETAIL, MEM_PER, CPU_PER,CPU_CORE_NUM,CPU_XH,CREATE_TIME,STATE)  VALUES
+		INSERT INTO SYSTEM_INFO (ID,HOST_NAME, VERSION, VERSION_DETAIL, MEM_PER, CPU_PER,DISK_PER,CPU_CORE_NUM,CPU_XH,CREATE_TIME,STATE)  VALUES
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.id},#{item.hostname},#{item.version},#{item.versionDetail},#{item.memPer},#{item.cpuPer},#{item.cpuCoreNum},#{item.cpuXh},#{item.createTime},#{item.state})
+			(#{item.id},#{item.hostname},#{item.version},#{item.versionDetail},#{item.memPer},#{item.cpuPer},#{item.diskPer},#{item.cpuCoreNum},#{item.cpuXh},#{item.createTime},#{item.state})
 		</foreach>
 	</insert>
 
@@ -88,6 +95,9 @@
 			</if>
 			<if test="item.cpuPer != null" >
 				CPU_PER= #{item.cpuPer},
+			</if>
+			<if test="item.diskPer != null" >
+				DISK_PER= #{item.diskPer},
 			</if>
 			<if test="item.cpuCoreNum != null" >
 				CPU_CORE_NUM= #{item.cpuCoreNum},
@@ -115,6 +125,7 @@
       		<if test="versionDetail != null" >VERSION_DETAIL,</if>
       		<if test="memPer != null" >MEM_PER,</if>
       		<if test="cpuPer != null" >CPU_PER,</if>
+			<if test="diskPer != null" >DISK_PER,</if>
       		<if test="cpuCoreNum != null" >CPU_CORE_NUM,</if>
       		<if test="cpuXh != null" >CPU_XH,</if>
 			<if test="state != null" >STATE,</if>
@@ -127,6 +138,7 @@
       		<if test="versionDetail != null" >#{versionDetail},</if>
       		<if test="memPer != null" >#{memPer},</if>
       		<if test="cpuPer != null" >#{cpuPer},</if>
+			<if test="diskPer != null" >#{diskPer},</if>
       		<if test="cpuCoreNum != null" >#{cpuCoreNum},</if>
       		<if test="cpuXh != null" >#{cpuXh},</if>
 			<if test="state != null" >#{state},</if>
@@ -152,6 +164,9 @@
 			<if test="cpuPer != null" >
 				CPU_PER= #{cpuPer},
 			</if>
+			<if test="diskPer != null" >
+				DISK_PER= #{diskPer},
+			</if>
 			<if test="cpuCoreNum != null" >
 				CPU_CORE_NUM= #{cpuCoreNum},
 			</if>
@@ -167,7 +182,7 @@
 		</set>
 		WHERE ID = #{id}
 	</update>
-	
+
 	<select id="selectByAccountId" resultMap="resultMap" parameterType="java.lang.String">
 		SELECT
 		<include refid="tableColumnList" />
@@ -185,16 +200,16 @@
 
 	  <select id="selectAllByParams" parameterType="map" resultMap="resultMap">
 		SELECT
-		a.ID,a.HOST_NAME, a.VERSION, a.VERSION_DETAIL, a.MEM_PER, a.CPU_PER,a.CPU_CORE_NUM,a.CPU_XH,a.CREATE_TIME,a.STATE,b.ID as hostId,b.REMARK as hostRemark
+		a.ID,a.HOST_NAME, a.VERSION, a.VERSION_DETAIL, a.MEM_PER, a.CPU_PER,a.DISK_PER,a.CPU_CORE_NUM,a.CPU_XH,a.CREATE_TIME,a.STATE,b.ID as hostId,b.REMARK as hostRemark
 		FROM SYSTEM_INFO as a LEFT JOIN HOST_INFO as b ON  a.HOST_NAME = b.IP
 		 ORDER BY HOST_NAME ASC
 	</select>
-	
+
 	<select id="selectByParams" parameterType="map" resultMap="resultMap">
 		SELECT
-		a.ID,a.HOST_NAME, a.VERSION, a.VERSION_DETAIL, a.MEM_PER, a.CPU_PER,a.CPU_CORE_NUM,a.CPU_XH,a.CREATE_TIME,a.STATE,b.ID as hostId,b.REMARK as hostRemark
+		a.ID,a.HOST_NAME, a.VERSION, a.VERSION_DETAIL, a.MEM_PER,a.CPU_PER,a.DISK_PER,a.CPU_CORE_NUM,a.CPU_XH,a.CREATE_TIME,a.STATE,b.ID as hostId,b.REMARK as hostRemark
 		FROM SYSTEM_INFO as a LEFT JOIN HOST_INFO as b ON  a.HOST_NAME = b.IP
 		 ORDER BY HOST_NAME ASC
 	</select>
-	
+
 </mapper>

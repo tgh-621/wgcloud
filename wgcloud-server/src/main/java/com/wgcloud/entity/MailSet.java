@@ -58,6 +58,10 @@ public class MailSet extends BaseEntity {
      */
     private String cpuPer;
     /**
+     * disk使用率告警值
+     */
+    private String diskPer;
+    /**
      * mem使用率告警值
      */
     private String memPer;
@@ -144,9 +148,17 @@ public class MailSet extends BaseEntity {
         this.cpuPer = cpuPer;
     }
 
+    public String getDiskPer() {
+        return diskPer;
+    }
+    public void setDiskPer(String diskPer) {
+        this.diskPer = diskPer;
+    }
+
     public String getMemPer() {
         return memPer;
     }
+
 
     public void setMemPer(String memPer) {
         this.memPer = memPer;

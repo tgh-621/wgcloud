@@ -59,10 +59,10 @@ public class AuthRestFilter implements Filter {
                 }
             }
         }
-       // if (accountInfo == null) {
-        //    response.sendRedirect("/wgcloud/login/toLogin");
-        //    return;
-        //}
+        if (accountInfo == null) {
+            response.sendRedirect("/wgcloud/login/toLogin");
+            return;
+        }
         filterChain.doFilter(servletRequest, servletResponse);
     }
 

@@ -11,13 +11,14 @@
 		<result column="SMTP_SSL" property="smtpSSL" jdbcType="CHAR" />
 		<result column="TO_MAIL" property="toMail" jdbcType="CHAR" />
 		<result column="CPU_PER" property="cpuPer" jdbcType="CHAR" />
+		<result column="DISK_PER" property="diskPer" jdbcType="CHAR" />
 		<result column="MEM_PER" property="memPer" jdbcType="CHAR" />
 		<result column="HEATH_PER" property="heathPer" jdbcType="CHAR" />
 		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
 	</resultMap>
-	
+
 	<sql id="tableColumnList">
-		ID,SEND_MAIL, FROM_MAIL_NAME, FROM_PWD, SMTP_HOST,SMTP_PORT,SMTP_SSL,TO_MAIL,CPU_PER,MEM_PER,CREATE_TIME,HEATH_PER
+		ID,SEND_MAIL, FROM_MAIL_NAME, FROM_PWD, SMTP_HOST,SMTP_PORT,SMTP_SSL,TO_MAIL,CPU_PER,DISK_PER,MEM_PER,CREATE_TIME,HEATH_PER
 	</sql>
 
 	<delete id="deleteById" parameterType="java.lang.String">
@@ -40,6 +41,7 @@
       		<if test="smtpSSL != null">SMTP_SSL,</if>
       		<if test="toMail != null">TO_MAIL,</if>
       		<if test="cpuPer != null" >CPU_PER,</if>
+			<if test="diskPer != null" >DISK_PER,</if>
       		<if test="memPer != null" >MEM_PER,</if>
 			<if test="heathPer != null" >HEATH_PER,</if>
       		<if test="sendMail != null" >SEND_MAIL,</if>
@@ -54,6 +56,7 @@
       		<if test="smtpSSL != null" >#{smtpSSL},</if>
       		<if test="toMail != null" >#{toMail},</if>
       		<if test="cpuPer != null" >#{cpuPer},</if>
+			<if test="diskPer != null" >#{diskPer},</if>
       		<if test="memPer != null" >#{memPer},</if>
 			<if test="heathPer != null" >#{heathPer},</if>
       		<if test="sendMail != null" >#{sendMail},</if>
@@ -84,6 +87,7 @@
 			</if>
 				CPU_PER= #{cpuPer},
 				MEM_PER= #{memPer},
+				DISK_PER= #{diskPer},
 				HEATH_PER= #{heathPer},
 			<if test="sendMail != null" >
 				SEND_MAIL= #{sendMail},
@@ -91,21 +95,21 @@
 		</set>
 		WHERE ID = #{id}
 	</update>
-	
-	
+
+
 	  <select id="selectAllByParams" parameterType="map" resultMap="resultMap">
 		SELECT
 		<include refid="tableColumnList" />
 		FROM MAIL_SET t
 		 ORDER BY CREATE_TIME DESC
 	</select>
-	
+
 	<select id="selectByParams" parameterType="map" resultMap="resultMap">
 		SELECT
 		<include refid="tableColumnList" />
 		FROM MAIL_SET
 		 ORDER BY CREATE_TIME DESC
 	</select>
-	
-	
+
+
 </mapper>

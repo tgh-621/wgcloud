@@ -13,7 +13,7 @@ public class CommonConfig {
 
 
     //admin管理员密码
-    private String admindPwd = "111111";
+    private String admindPwd = "Kk!123456";
     private String wgToken = "";
     private String dashView;
     private Integer dbTableTimes = 3600000;

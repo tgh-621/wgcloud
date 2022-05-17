@@ -50,6 +50,11 @@ public class SystemInfo extends BaseEntity {
     private Double cpuPer;
 
     /**
+     * cpu使用率
+     */
+    private Double diskPer;
+
+    /**
      * CPU型号信息
      */
     private String cpuXh;
@@ -119,6 +124,13 @@ public class SystemInfo extends BaseEntity {
 
     public void setCpuXh(String cpuXh) {
         this.cpuXh = cpuXh;
+    }
+
+    public Double getDiskPer() {
+        return diskPer;
+    }
+    public void setDiskPer(Double diskPer) {
+        this.diskPer = diskPer;
     }
 
     public Double getMemPer() {
