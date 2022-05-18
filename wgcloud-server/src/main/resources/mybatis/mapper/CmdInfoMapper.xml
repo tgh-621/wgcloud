@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wgcloud.mapper.CmdInfoMapper">
+	<resultMap id="resultMap" type="com.wgcloud.entity.CmdInfo">
+		<id column="ID" property="id" jdbcType="CHAR" />
+		<result column="HOST_NAME" property="hostname" jdbcType="CHAR" />
+		<result column="CMD" property="cmd" jdbcType="CHAR" />
+		<result column="RESULT" property="result" jdbcType="CHAR" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="EXEC_TIME" property="execTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="tableColumnList">
+		ID,HOST_NAME, CMD,RESULT,CREATE_TIME,EXEC_TIME
+	</sql>
+
+	<sql id="queryByParams">
+		<if test="hostname != null">
+			<![CDATA[ AND HOST_NAME LIKE  CONCAT('%',#{hostname},'%')]]>
+		</if>
+		<if test="startTime != null and endTime !=null and startTime !='' and endTime != '' ">
+			<![CDATA[ AND CREATE_TIME >= #{startTime} and CREATE_TIME <=#{endTime}]]>
+		</if>
+	</sql>
+
+	<select id="selectByAccountId" resultMap="resultMap" parameterType="java.lang.String">
+		SELECT
+		<include refid="tableColumnList" />
+		FROM CMD_INFO
+	</select>
+
+
+	<select id="selectById" resultMap="resultMap" parameterType="java.lang.String">
+		SELECT
+		<include refid="tableColumnList" />
+		FROM CMD_INFO
+		WHERE ID=#{id}
+	</select>
+
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		DELETE FROM CMD_INFO
+		WHERE ID = #{id}
+	</delete>
+
+	<delete id="deleteByDate"  parameterType="map">
+		DELETE FROM CMD_INFO WHERE   <![CDATA[  CREATE_TIME <=#{endTime}]]>
+	</delete>
+
+	<delete id="deleteByHostName" parameterType="map">
+		DELETE FROM CMD_INFO WHERE <![CDATA[  APP_PID=#{appPid} AND HOST_NAME =#{hostname}]]>
+	</delete>
+
+	<delete id="deleteById" parameterType="java.lang.String">
+		DELETE FROM
+		CMD_INFO
+		WHERE ID IN
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+	<insert id="save" parameterType="com.wgcloud.entity.AppInfo">
+		INSERT INTO CMD_INFO
+    	<trim prefix="(" suffix=")" suffixOverrides="," >
+      		<if test="id != null" >ID,</if>
+      		<if test="hostname != null" >HOST_NAME,</if>
+      		<if test="cmd != null">CMD,</if>
+      		<if test="result != null">RESULT,</if>
+			<if test="execTime != null">EXEC_TIME,</if>
+      		<if test="createTime != null" >CREATE_TIME</if>
+    	</trim>
+    	<trim prefix="values (" suffix=")" suffixOverrides="," >
+      		<if test="id != null" >#{id},</if>
+      		<if test="hostname != null" >#{hostname},</if>
+      		<if test="cmd != null" >#{cmd},</if>
+      		<if test="result != null" >#{result},</if>
+			<if test="execTime != null" >#{execTime},</if>
+      		<if test="createTime != null" >#{createTime}</if>
+    	</trim>
+	</insert>
+
+	<insert id="insertList" parameterType="java.util.List" >
+		INSERT INTO CMD_INFO (ID,HOST_NAME, CMD,RESULT,CREATE_TIME,EXEC_TIME)  VALUES
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.id},#{item.hostname},#{item.cmd},#{item.result},#{item.createTime},#{item.execTime})
+		</foreach>
+	</insert>
+
+	<update id="updateList" parameterType="java.util.List" >
+		<foreach collection="list" item="item" index="index" separator=";" >
+			UPDATE CMD_INFO
+			<set>
+				<if test="item.hostname != null">
+					HOST_NAME = #{item.hostname},
+				</if>
+				<if test="item.cmd != null">
+					CMD = #{item.cmd},
+				</if>
+				<if test="item.result != null">
+					RESULT = #{item.result},
+				</if>
+				<if test="item.createTime != null">
+					CREATE_TIME = #{item.createTime},
+				</if>
+				<if test="item.execTime != null">
+					EXEC_TIME = #{item.execTime}
+				</if>
+
+			</set>
+			WHERE ID = #{item.id}
+		</foreach>
+	</update>
+
+
+	<update id="updateById" parameterType="com.wgcloud.entity.AppInfo">
+		UPDATE CMD_INFO
+		<set>
+			<if test="hostname != null">
+				HOST_NAME = #{hostname},
+			</if>
+			<if test="cmd != null">
+				CMD = #{cmd},
+			</if>
+			<if test="result != null">
+				RESULT = #{result},
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME = #{createTime},
+			</if>
+			<if test="execTime != null">
+				EXEC_TIME = #{execTime}
+			</if>
+
+		</set>
+		WHERE ID = #{id}
+	</update>
+
+	<select id="countByParams" parameterType="map" resultType="java.lang.Integer">
+		SELECT count(*)  FROM CMD_INFO t
+		<where>
+			<include refid="queryByParams" />
+		</where>
+	</select>
+
+
+	<select id="selectAllByParams" parameterType="map" resultMap="resultMap">
+		SELECT
+		<include refid="tableColumnList" />
+		FROM CMD_INFO t
+		<where>
+			<include refid="queryByParams" />
+		</where>
+		 ORDER BY ID DESC
+	</select>
+
+	<select id="selectNoExecCmd"  resultMap="resultMap">
+		SELECT
+		<include refid="tableColumnList" />
+		FROM CMD_INFO t
+		where EXEC_TIME is null and HOST_NAME=#{hostname}
+		ORDER BY ID DESC
+	</select>
+
+	<select id="selectByParams" parameterType="map" resultMap="resultMap">
+		SELECT
+		<include refid="tableColumnList" />
+		FROM CMD_INFO
+		<where>
+			<include refid="queryByParams" />
+		</where>
+		 ORDER BY ID DESC
+	</select>
+
+
+</mapper>

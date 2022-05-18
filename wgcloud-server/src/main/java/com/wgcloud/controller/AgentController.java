@@ -5,6 +5,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.wgcloud.entity.*;
+import com.wgcloud.service.CmdInfoService;
 import com.wgcloud.service.LogInfoService;
 import com.wgcloud.service.SystemInfoService;
 import com.wgcloud.util.TokenUtils;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import java.text.NumberFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -42,13 +44,10 @@ public class AgentController {
 
     ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 40, 2, TimeUnit.MINUTES, new LinkedBlockingDeque<>());
 
-
-    @Resource
-    private LogInfoService logInfoService;
-    @Resource
-    private SystemInfoService systemInfoService;
     @Autowired
     private TokenUtils tokenUtils;
+    @Resource
+    private CmdInfoService cmdInfoService;
 
     @ResponseBody
     @RequestMapping("/minTask")
@@ -152,6 +151,43 @@ public class AgentController {
         } finally {
             return resultJson;
         }
+    }
+    @ResponseBody
+    @RequestMapping("/cmd")
+    public JSONObject cmd(@RequestBody String paramBean) {
+        JSONObject agentJsonObject = (JSONObject) JSONUtil.parse(paramBean);
+        if(agentJsonObject != null && agentJsonObject.getJSONArray("cmds") != null){
+            JSONArray arrary = agentJsonObject.getJSONArray("cmds");
+            for(int i = 0; i < arrary.size();i++){
+                CmdInfo cmdInfo =  arrary.get(i,CmdInfo.class);
+                if(cmdInfo != null &&cmdInfo.getId() != null){
+                    if(cmdInfo.getExecTime() == null){
+                        cmdInfo.setExecTime(new Date());
+                    }
+                    if(cmdInfo.getResult() == null)continue;
+                    if(cmdInfo.getResult().length() > 9999){
+                        cmdInfo.setResult(cmdInfo.getResult().substring(0,9999));
+                    }
+                    try {
+                        cmdInfoService.updateById(cmdInfo);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        if(agentJsonObject.getStr("hostname") != null){
+            String hosname = agentJsonObject.getStr("hostname");
+            try {
+                    List<CmdInfo> list = cmdInfoService.selectNoExecCmd(hosname);
+                    agentJsonObject.put("cmds",JSONUtil.parseArray(list));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+        agentJsonObject.put("code",0);
+        return agentJsonObject;
     }
 
 }

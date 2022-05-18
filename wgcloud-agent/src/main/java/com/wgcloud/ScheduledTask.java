@@ -13,10 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -147,6 +149,30 @@ public class ScheduledTask {
             restUtil.post(commonConfig.getServerUrl() + "/wgcloud/agent/minTask", jsonObject);
         }
 
+    }
+
+    @Scheduled(initialDelay = 20 * 1000L, fixedRate = 20 * 1000)
+    public void cmd(){
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("hostname", commonConfig.getBindIp());
+            String ret = restUtil.post(commonConfig.getServerUrl() + "/wgcloud/agent/cmd", jsonObject);
+            if(ret.length() < 2)return;
+            jsonObject = JSONUtil.parseObj(ret);
+            JSONArray arrary = jsonObject.getJSONArray("cmds");
+            if (arrary != null && arrary.size() > 0) {
+
+                for (int i = 0; i < arrary.size(); i++) {
+                    JSONObject obj = arrary.getJSONObject(i);
+                    String cmd = obj.getStr("cmd");
+                    obj.put("result", CmdClient.runShell(cmd));
+                    //obj.put("result",client.ReadCmdOut());
+                }
+                restUtil.post(commonConfig.getServerUrl() + "/wgcloud/agent/cmd", jsonObject);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 

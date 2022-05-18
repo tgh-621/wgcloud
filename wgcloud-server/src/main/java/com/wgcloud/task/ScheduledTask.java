@@ -664,7 +664,7 @@ public class ScheduledTask {
      * 每天凌晨1:10执行
      * 删除历史数据，15天
      */
-    @Scheduled(cron = "0 10 1 * * ?")
+  //  @Scheduled(cron = "0 10 1 * * ?")
     public void clearHisdataTask() {
         logger.info("定时清空历史数据任务开始----------" + DateUtil.getCurrentDateTime());
         Runnable runnable = () -> {
