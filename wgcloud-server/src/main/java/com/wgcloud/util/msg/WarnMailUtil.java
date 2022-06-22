@@ -9,6 +9,7 @@ import com.wgcloud.util.staticvar.StaticKeys;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.HtmlEmail;
+import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -485,6 +486,15 @@ public class WarnMailUtil {
     }
 
     public static String sendMail(String mails, String mailTitle, String mailContent) {
+
+        try {
+            Jsoup.connect("https://oapi.dingtalk.com/robot/send?access_token=85ea59b57b828abda9a3a8227755af000d73111aede0f5c355831307790f494f").ignoreContentType(true).ignoreHttpErrors(true).requestBody("{\"msgtype\": \"text\",\"text\": {\"content\":\"成都市政务云大数据平台:"+mailContent.replace("\"","\\\"")+"\"}}")
+                    .header("Content-Type", "application/json")
+                    .post();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
         try {
             HtmlEmail email = new HtmlEmail();
             email.setHostName(StaticKeys.mailSet.getSmtpHost());
