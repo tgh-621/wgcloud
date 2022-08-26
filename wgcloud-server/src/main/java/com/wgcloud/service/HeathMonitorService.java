@@ -32,6 +32,13 @@ public class HeathMonitorService {
         return pageInfo;
     }
 
+    public PageInfo selectByWarnItems( Map<String, Object> params,int currPage, int pageSize) throws Exception {
+        PageHelper.startPage(currPage, pageSize);
+        List<HeathMonitor> list = heathMonitorMapper.selectWarnItems(params);
+        PageInfo<HeathMonitor> pageInfo = new PageInfo<HeathMonitor>(list);
+        return pageInfo;
+    }
+
     public void save(HeathMonitor HeathMonitor) throws Exception {
         HeathMonitor.setId(UUIDUtil.getUUID());
         HeathMonitor.setCreateTime(DateUtil.getNowTime());

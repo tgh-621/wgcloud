@@ -2,6 +2,7 @@ package com.wgcloud.controller;
 
 import com.github.pagehelper.PageInfo;
 import com.wgcloud.entity.HeathMonitor;
+import com.wgcloud.service.GroupInfoService;
 import com.wgcloud.service.HeathMonitorService;
 import com.wgcloud.service.LogInfoService;
 import com.wgcloud.util.PageUtil;
@@ -38,6 +39,8 @@ public class HeathMonitorController {
     private HeathMonitorService heathMonitorService;
     @Resource
     private LogInfoService logInfoService;
+    @Resource
+    private GroupInfoService groupInfoService;
 
 
     /**
@@ -48,13 +51,15 @@ public class HeathMonitorController {
      * @return
      */
     @RequestMapping(value = "list")
-    public String heathMonitorList(HeathMonitor HeathMonitor, Model model) {
+    public String heathMonitorList(HeathMonitor heathMonitor, Model model) {
         Map<String, Object> params = new HashMap<String, Object>();
         try {
-            PageInfo pageInfo = heathMonitorService.selectByParams(params, HeathMonitor.getPage(), HeathMonitor.getPageSize());
+            params.put("heathGroup",heathMonitor.getHeathGroup());
+            PageInfo pageInfo = heathMonitorService.selectByParams(params, heathMonitor.getPage(), heathMonitor.getPageSize());
             PageUtil.initPageNumber(pageInfo, model);
             model.addAttribute("pageUrl", "/heathMonitor/list?1=1");
             model.addAttribute("page", pageInfo);
+            model.addAttribute("group",groupInfoService.selectAll());
         } catch (Exception e) {
             logger.error("查询服务心跳监控错误", e);
             logInfoService.save("查询心跳监控错误", e.toString(), StaticKeys.LOG_ERROR);
@@ -98,18 +103,20 @@ public class HeathMonitorController {
      * @return
      */
     @RequestMapping(value = "edit")
-    public String edit(Model model, HttpServletRequest request) {
+    public String edit(Model model, HttpServletRequest request) throws Exception {
         String errorMsg = "编辑服务心跳监控：";
         String id = request.getParameter("id");
         HeathMonitor heathMonitor = new HeathMonitor();
         if (StringUtils.isEmpty(id)) {
             model.addAttribute("heathMonitor", heathMonitor);
+            model.addAttribute("group",groupInfoService.selectAll());
             return "heath/add";
         }
 
         try {
             heathMonitor = heathMonitorService.selectById(id);
             model.addAttribute("heathMonitor", heathMonitor);
+            model.addAttribute("group",groupInfoService.selectAll());
         } catch (Exception e) {
             logger.error(errorMsg, e);
             logInfoService.save(heathMonitor.getAppName(), errorMsg + e.toString(), StaticKeys.LOG_ERROR);

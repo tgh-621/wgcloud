@@ -2,8 +2,19 @@ function add() {
     window.location.href = "/wgcloud/heathMonitor/edit";
 }
 
+function wl() {
+    window.location.href = "/wgcloud/dash/warnlist?group="+ $("#sk").val();;
+}
+
+function wl1() {
+    window.location.href = "/wgcloud/heathMonitor/list?heathGroup="+ $("#sk").val();;
+}
+
 function view(id) {
     window.location.href = "/wgcloud/heathMonitor/view?id=" + id;
+}
+function view1(id) {
+    window.open("/wgcloud/heathMonitor/view?id=" + id);
 }
 
 function del(id) {

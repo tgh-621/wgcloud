@@ -40,17 +40,16 @@
   <div class="col-md-12">
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title">接口服务监控列表</h3>
-        <div class=" float-sm-right">
-          <select   name="sk" id="sk" style="height: 30px">
-            <option    value="" >全部</option>
-            <th:block th:each="item,iterStat : ${group}">
-              <option   th:value="${item.name}" th:text="${item.name}" >aa</option>
-            </th:block>
-          </select>
+        <h3 class="card-title">报警服务列表</h3>
+        <div class=" float-sm-right" style="display:inline-block; ">
+            <select   name="sk" id="sk" style="height: 30px">
+              <option    value="" >全部</option>
+              <th:block th:each="item,iterStat : ${group}">
+                <option   th:value="${item.name}" th:text="${item.name}" >aa</option>
+              </th:block>
+            </select>
 
-          <button type="button"  th:onclick="wl1()" class="btn btn-block btn-primary btn-sm"style="display:inline-block;width:50px">筛选</button>
-          <button type="button" onclick="add()" class="btn btn-block btn-primary btn-sm"style="display:inline-block;width:50px">添加</button>
+          <button type="button"  th:onclick="wl()" class="btn btn-block btn-primary btn-sm"style="display:inline-block;width:50px">筛选</button>
         </div>
       </div>
       <!-- /.card-header -->
@@ -59,9 +58,11 @@
           <thead>
           <tr>
             <th style="width: 80px">序号</th>
-            <th>服务分类</th>
+            <th>数据分类</th>
+            <th>监控分类</th>
             <th>服务名称</th>
-            <th>响应状态</th>
+            <th>服务详情</th>
+            <th>异常信息</th>
             <th>更新时间</th>
               <th>操作</th>
           </tr>
@@ -71,22 +72,28 @@
             <tr>
               <td th:text="${iterStat.index+1}">1</td>
               <td th:text="${item.heathGroup}">Update software</td>
+              <td >接口监控</td>
               <td th:text="${item.appName}">Update software</td>
+              <td th:text="${item.heathUrl}">Update software</td>
               <td  style="font-size:1.2rem">
 
-                <th:block th:if="${item.heathStatus eq '200'}">
-                  <span class="badge bg-primary" th:text="${item.heathStatus}"></span>
+                <th:block th:if="${item.heathStatus eq '-1'}">
+                  <span class="badge bg-danger" th:text="数据异常"></span>
                 </th:block>
-                <th:block th:unless="${item.heathStatus eq '200'}">
-                  <span class="badge bg-danger" th:text="${item.heathStatus}"></span>
+                <th:block th:if="${item.heathStatus eq '-2'}">
+                  <span class="badge bg-danger" th:text="脚本执行异常"></span>
+                </th:block>
+                <th:block th:if="${item.heathStatus eq '0'}">
+                  <span class="badge bg-danger" th:text="准备执行中"></span>
+                </th:block>
+                <th:block th:if="${item.heathStatus gt '0'}">
+                  <span class="badge bg-danger" th:text="http code = ${item.heathStatus}"></span>
                 </th:block>
               </td>
 
               <td th:text="${#dates.format(item.createTime,'yyyy-MM-dd HH:mm:ss')}">Update software</td>
               <td>
-                <button type="button"  th:onclick="del([[${item.id}]])"  class="btn bg-gradient-danger btn-sm">删除</button>
-                <button type="button"  th:onclick="edit([[${item.id}]])"  class="btn bg-gradient-primary btn-sm">编辑</button>
-              <button type="button"  th:onclick="view([[${item.id}]])"  class="btn bg-gradient-primary btn-sm">查看</button></td>
+              <button type="button"  th:onclick="view1([[${item.id}]])"  class="btn bg-gradient-primary btn-sm">查看</button></td>
             </tr>
           </th:block>
 

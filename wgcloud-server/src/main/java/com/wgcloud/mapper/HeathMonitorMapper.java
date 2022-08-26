@@ -21,6 +21,8 @@ public interface HeathMonitorMapper {
 
     public List<HeathMonitor> selectByParams(Map<String, Object> params) throws Exception;
 
+    public List<HeathMonitor> selectWarnItems(Map<String, Object> params) throws Exception;
+
     public HeathMonitor selectById(String id) throws Exception;
 
     public void save(HeathMonitor HeathMonitor) throws Exception;

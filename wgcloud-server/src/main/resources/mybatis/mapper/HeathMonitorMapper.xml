@@ -17,15 +17,19 @@
 		<result column="PARAM_TYPE" property="paramType" jdbcType="VARCHAR" />
 		<result column="REQUEST_TYPE" property="requestType" jdbcType="VARCHAR" />
 		<result column="COOKIE_INFO" property="cookieInfo" jdbcType="VARCHAR" />
+		<result column="HEATH_GROUP" property="heathGroup" jdbcType="VARCHAR" />
 	</resultMap>
 
 	<sql id="tableColumnList">
-		ID,APP_NAME, HEATH_URL,HEATH_STATUS,CREATE_TIME,HEADER_PARAM,REQUEST_PARAM,LAST_RESULT,TEST_SCRIPT,LAST_STATUS,FRONT_ID,LAST_TIME,PARAM_TYPE,REQUEST_TYPE,COOKIE_INFO
+		ID,APP_NAME, HEATH_URL,HEATH_STATUS,CREATE_TIME,HEADER_PARAM,REQUEST_PARAM,LAST_RESULT,TEST_SCRIPT,LAST_STATUS,FRONT_ID,LAST_TIME,PARAM_TYPE,REQUEST_TYPE,COOKIE_INFO,HEATH_GROUP
 	</sql>
 
 	<sql id="queryByParams">
 		<if test="heathStatus != null">
 			<![CDATA[ AND HEATH_STATUS = #{heathStatus} ]]>
+		</if>
+		<if test="heathGroup != null">
+			<![CDATA[ AND HEATH_GROUP = #{heathGroup} ]]>
 		</if>
 		<if test="startTime != null and endTime !=null and startTime !='' and endTime != '' ">
 			<![CDATA[ AND CREATE_TIME >= #{startTime} and CREATE_TIME <=#{endTime}]]>
@@ -75,7 +79,8 @@
 			<if test="lastTime != null" >LAST_TIME,</if>
 			<if test="paramType != null" >PARAM_TYPE,</if>
 			<if test="requestType != null" >REQUEST_TYPE,</if>
-			<if test="cookieInfo != null" >COOKIE_INFO</if>
+			<if test="cookieInfo != null" >COOKIE_INFO,</if>
+			<if test="heathGroup != null" >HEATH_GROUP</if>
 
     	</trim>
     	<trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -93,16 +98,18 @@
 			<if test="lastTime != null" >#{lastTime},</if>
 			<if test="paramType != null" >#{paramType},</if>
 			<if test="requestType != null" >#{requestType},</if>
-			<if test="cookieInfo != null" >#{cookieInfo}</if>
+			<if test="cookieInfo != null" >#{cookieInfo},</if>
+			<if test="heathGroup != null" >#{heathGroup}</if>
     	</trim>
 	</insert>
 
 	<insert id="insertList" parameterType="java.util.List" >
 		INSERT INTO HEATH_MONITOR (ID,APP_NAME,HEATH_URL,HEATH_STATUS,CREATE_TIME,HEADER_PARAM,
-		REQUEST_PARAM,LAST_RESULT,TEST_SCRIPT,LAST_STATUS,FRONT_ID,LAST_TIME,PARAM_TYPE,REQUEST_TYPE,COOKIE_INFO)  VALUES
+		REQUEST_PARAM,LAST_RESULT,TEST_SCRIPT,LAST_STATUS,FRONT_ID,LAST_TIME,PARAM_TYPE,REQUEST_TYPE,COOKIE_INFO,HEATH_GROUP)  VALUES
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.id},#{item.appName},#{item.heathUrl},#{item.heathStatus},#{item.createTime},
-			#{item.headerParam},#{item.requestParam},#{item.lastResult},#{item.testScript},#{item.lastStatus},#{item.frontId},#{item.lastTime},#{item.paramType},#{item.requestType},#{item.cookieInfo})
+			#{item.headerParam},#{item.requestParam},#{item.lastResult},#{item.testScript},#{item.lastStatus},#{item.frontId},#{item.lastTime},#{item.paramType},#{item.requestType},
+			#{item.cookieInfo},#{item.heathGroup})
 		</foreach>
 	</insert>
 
@@ -147,10 +154,13 @@
 					REQUEST_TYPE= #{item.requestType},
 				</if>
 				<if test="item.cookieInfo != null" >
-					COOKIE_INFO= #{item.cookieInfo}
+					COOKIE_INFO= #{item.cookieInfo},
 				</if>
 				<if test="item.testScript != null" >
-					TEST_SCRIPT= #{item.testScript}
+					TEST_SCRIPT= #{item.testScript},
+				</if>
+				<if test="item.heathGroup != null" >
+					HEATH_GROUP=#{item.heathGroup}
 				</if>
 			</set>
 			WHERE ID = #{item.id}
@@ -197,10 +207,13 @@
 				REQUEST_TYPE= #{requestType},
 			</if>
 			<if test="cookieInfo != null" >
-				COOKIE_INFO= #{cookieInfo}
+				COOKIE_INFO= #{cookieInfo},
 			</if>
 			<if test="testScript != null" >
-				TEST_SCRIPT= #{testScript}
+				TEST_SCRIPT= #{testScript},
+			</if>
+			<if test="heathGroup != null" >
+				HEATH_GROUP=#{heathGroup}
 			</if>
 		</set>
 		WHERE ID = #{id}
@@ -222,6 +235,17 @@
 			<include refid="queryByParams" />
 		</where>
 		 ORDER BY CREATE_TIME DESC
+	</select>
+
+	<select id="selectWarnItems" parameterType="map" resultMap="resultMap">
+        SELECT * from (SELECT
+		<include refid="tableColumnList" />
+		FROM HEATH_MONITOR t
+		 where HEATH_STATUS != 200
+		ORDER BY CREATE_TIME DESC) a
+        <where>
+            <include refid="queryByParams" />
+        </where>
 	</select>
 
 	<select id="selectByParams" parameterType="map" resultMap="resultMap">

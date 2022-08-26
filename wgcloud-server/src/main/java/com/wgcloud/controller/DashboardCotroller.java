@@ -70,6 +70,8 @@ public class DashboardCotroller {
     HeathMonitorService heathMonitorService;
     @Autowired
     HostInfoService hostInfoService;
+    @Autowired
+    GroupInfoService groupInfoService;
 
     /**
      * 根据条件查询host列表
@@ -443,5 +445,35 @@ public class DashboardCotroller {
         }
         return Math.ceil(maxval);
     }
+
+    /**
+     * 根据条件查询心跳监控列表
+     *
+     * @param model
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "warnlist")
+    public String heathMonitorList(SearchInfo searchInfo, Model model) {
+        try {
+            String group = searchInfo.getGroup();
+
+            Map<String,Object> hparam = new HashMap<>();
+            if(group != null && (!group.isEmpty())){
+                hparam.put("heathGroup",group);
+            }
+            PageInfo pageInfo = heathMonitorService.selectByWarnItems(hparam, 1, 1000);
+            PageUtil.initPageNumber(pageInfo, model);
+            model.addAttribute("pageUrl", "/dashView/warnlist?1=1");
+            model.addAttribute("page", pageInfo);
+            model.addAttribute("group",groupInfoService.selectAll());
+        } catch (Exception e) {
+            logger.error("查询服务心跳监控错误", e);
+            logInfoService.save("查询心跳监控错误", e.toString(), StaticKeys.LOG_ERROR);
+
+        }
+        return "dashView/warnlist";
+    }
+
 
 }

@@ -72,6 +72,8 @@ public class HeathMonitor extends BaseEntity {
 
     private Integer exeState = 0;
 
+    private String heathGroup;
+
 
     public String getAppName() {
         return appName;
@@ -191,5 +193,13 @@ public class HeathMonitor extends BaseEntity {
 
     public void setExeState(Integer exeState) {
         this.exeState = exeState;
+    }
+
+    public String getHeathGroup() {
+        return heathGroup;
+    }
+
+    public void setHeathGroup(String heathGroup) {
+        this.heathGroup = heathGroup;
     }
 }

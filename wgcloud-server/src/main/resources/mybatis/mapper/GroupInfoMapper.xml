@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wgcloud.mapper.GroupInfoMapper">
+	<resultMap id="resultMap" type="com.wgcloud.entity.GroupInfo">
+		<id column="ID" property="id" jdbcType="CHAR" />
+		<result column="NAME" property="name" jdbcType="CHAR" />
+	</resultMap>
+	
+	<sql id="tableColumnList">
+		ID,`NAME`
+	</sql>
+
+	<sql id="queryByParams">
+		<if test="name != null">
+			<![CDATA[  `NAME` LIKE  CONCAT('%',#{name},'%')]]>
+		</if>
+	</sql>
+	
+	<select id="selectByAccountId" resultMap="resultMap" parameterType="java.lang.String">
+		SELECT
+		<include refid="tableColumnList" />
+		FROM HEATH_GROUP
+	</select>
+	
+	
+	<select id="selectById" resultMap="resultMap" parameterType="java.lang.String">
+		SELECT
+		<include refid="tableColumnList" />
+		FROM HEATH_GROUP
+		WHERE ID=#{id} 
+	</select>
+	
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		DELETE FROM HEATH_GROUP
+		WHERE ID = #{id}
+	</delete>
+
+
+
+	<delete id="deleteByName" parameterType="map">
+		DELETE FROM HEATH_GROUP WHERE <![CDATA[   `NAME` =#{hostname}]]>
+	</delete>
+	
+	<delete id="deleteById" parameterType="java.lang.String">
+		DELETE FROM
+		HEATH_GROUP
+		WHERE ID IN
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+	<insert id="save" parameterType="com.wgcloud.entity.GroupInfo">
+		INSERT INTO HEATH_GROUP
+    	<trim prefix="(" suffix=")" suffixOverrides="," >
+      		<if test="id != null" >ID,</if>
+      		<if test="name != null" >`NAME`</if>
+
+    	</trim>
+    	<trim prefix="values (" suffix=")" suffixOverrides="," >
+      		<if test="id != null" >#{id},</if>
+      		<if test="name != null" >#{name}</if>
+
+    	</trim>
+	</insert>
+
+	<insert id="insertList" parameterType="java.util.List" >
+		INSERT INTO HEATH_GROUP (ID,`NAME`)  VALUES
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.id},#{item.name})
+		</foreach>
+	</insert>
+
+	<update id="updateList" parameterType="java.util.List" >
+		<foreach collection="list" item="item" index="index" separator=";" >
+			UPDATE HEATH_GROUP
+			<set>
+				<if test="item.name != null">
+					HOST_NAME = #{item.name}
+				</if>
+
+			</set>
+			WHERE ID = #{item.id}
+		</foreach>
+	</update>
+	
+	
+	<update id="updateById" parameterType="com.wgcloud.entity.GroupInfo">
+		UPDATE HEATH_GROUP
+		<set>
+			<if test="name != null">
+				`NAME` = #{name}
+			</if>
+
+		</set>
+		WHERE ID = #{id}
+	</update>
+
+	<select id="countByParams" parameterType="map" resultType="java.lang.Integer">
+		SELECT count(*)  FROM HEATH_GROUP t
+		<where>
+			<include refid="queryByParams" />
+		</where>
+	</select>
+
+
+	<select id="selectAllByParams" parameterType="map" resultMap="resultMap">
+		SELECT
+		<include refid="tableColumnList" />
+		FROM HEATH_GROUP t
+		<where>
+			<include refid="queryByParams" />
+		</where>
+		 ORDER BY ID DESC
+	</select>
+	
+	<select id="selectByParams" parameterType="map" resultMap="resultMap">
+		SELECT
+		<include refid="tableColumnList" />
+		FROM APP_INFO
+		<where>
+			<include refid="queryByParams" />
+		</where>
+		 ORDER BY ID DESC
+	</select>
+	
+	
+</mapper>
