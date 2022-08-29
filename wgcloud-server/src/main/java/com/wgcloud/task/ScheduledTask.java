@@ -326,6 +326,7 @@ public class ScheduledTask {
     }
 
     public static String getErrorInfoFromException(Exception e) {
+
         try {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -337,6 +338,7 @@ public class ScheduledTask {
         } catch (Exception e2) {
             return "ErrorInfoFromException";
         }
+
     }
     /**
      * 90秒后执行，之后每隔10分钟执行, 单位：ms。
