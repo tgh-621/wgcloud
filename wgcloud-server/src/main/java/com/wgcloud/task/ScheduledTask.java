@@ -3,6 +3,7 @@ package com.wgcloud.task;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.*;
+import com.wgcloud.common.BaseOp;
 import com.wgcloud.config.CommonConfig;
 import com.wgcloud.entity.*;
 import com.wgcloud.mapper.*;
@@ -215,7 +216,7 @@ public class ScheduledTask {
 
     }
 
-    private Boolean heathMonitorExeJs(String js,String html,HeathMonitor heathMonitor){
+    private static Boolean heathMonitorExeJs(String js,String html,HeathMonitor heathMonitor){
         try {
             JSONObject json = null;
             JSONArray jsona = null;
@@ -233,20 +234,24 @@ public class ScheduledTask {
                     "return true; }");
             Invocable jsInvoke = (Invocable) engine;
             Object res = jsInvoke.invokeFunction("heathTest", new Object[]{html,json,jsona});
-            return (Boolean)res;
+            if(res instanceof Boolean){
+                return (Boolean)res;
+            }
+            heathMonitor.setLastResult("返回数据校验失败:  "+res.toString()+"\r\n"+heathMonitor.getLastResult());
+            return false;
         }catch (Exception ex){
             ex.printStackTrace();
-            heathMonitor.setLastResult(heathMonitor.getLastResult() +"\r\n"+ex.getMessage()+"\r\n"+getErrorInfoFromException(ex));
+            heathMonitor.setLastResult("脚本执行异常:"+heathMonitor.getLastResult() +"\r\n"+ex.getMessage()+"\r\n"+getErrorInfoFromException(ex));
             return false;
         }
 
 
     }
 
-    private Boolean execHeathMonitorTask(List<HeathMonitor> heathMonitorAllList,HeathMonitor curHeathMonitor) throws IOException {
+    public static Boolean execHeathMonitorTask(List<HeathMonitor> heathMonitorAllList,HeathMonitor curHeathMonitor) throws IOException {
         if(curHeathMonitor.getExeState() !=0)return "200".equals(curHeathMonitor.getHeathStatus());
         HeathMonitor frontMonitor = null;
-        if(!StringUtils.isEmpty(curHeathMonitor.getFrontId())){
+        if(!StringUtils.isEmpty(curHeathMonitor.getFrontId()) && heathMonitorAllList!= null){
             //优先执行依赖的任务
             for(int i = 0;i < heathMonitorAllList.size();i++){
                 HeathMonitor h =  heathMonitorAllList.get(i);
@@ -258,7 +263,9 @@ public class ScheduledTask {
             }
         }
         curHeathMonitor.setExeState(1);
-        Connection connection = Jsoup.connect(curHeathMonitor.getHeathUrl());
+        String url = curHeathMonitor.getHeathUrl();
+        url = BaseOp.replaceVal(url);
+        Connection connection = Jsoup.connect(url);
         connection.timeout(120000).ignoreContentType(true).ignoreHttpErrors(true);
         Map<String,String> cookies = new HashMap<>();
         if(frontMonitor != null){
@@ -275,6 +282,7 @@ public class ScheduledTask {
         //connection.header("Host","gdwry.bigdatacd.com:18091");
         String requestParams = curHeathMonitor.getRequestParam();
         if(!StringUtils.isEmpty(requestParams)){
+            requestParams = BaseOp.replaceVal(requestParams);
             if(curHeathMonitor.getParamType().equals("application/x-www-form-urlencoded")){
                 Map<String,String> params =  JSON.parseObject(requestParams,new TypeReference<HashMap<String,String>>() {});
                 connection.data(params);
@@ -303,6 +311,7 @@ public class ScheduledTask {
 
         if(code !=200){
             //出错了，就不执行结果判断了
+            curHeathMonitor.setLastResult("接口报错: code="+code+"\r\n"+curHeathMonitor.getLastResult());
             return false;
         }
 
@@ -316,7 +325,7 @@ public class ScheduledTask {
         return true;
     }
 
-    public String getErrorInfoFromException(Exception e) {
+    public static String getErrorInfoFromException(Exception e) {
         try {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);

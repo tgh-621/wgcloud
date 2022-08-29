@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <div  th:replace="common/header.html"></div>
+
+
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div th:replace="common/chart.html"></div>
+
+<div class="wrapper">
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="" style="font-size: 0.9rem">
+
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">系统函数列表</h3>
+        <div class=" float-sm-right">
+        </div>
+      </div>
+      <!-- /.card-header -->
+      <div class="card-body">
+        <table class="table table-bordered">
+          <thead>
+          <tr>
+            <th style="width: 80px">序号</th>
+            <th>函数名</th>
+            <th>函数含义</th>
+            <th>备注</th>
+          </tr>
+          </thead>
+          <tbody>
+          <th:block th:each="item,iterStat : ${page}">
+            <tr>
+              <td th:text="${iterStat.index+1}">1</td>
+              <td th:text="${item.funKey}">Update software</td>
+              <td th:text="${item.funName}">Update software</td>
+              <td th:text="${item.note}">Update software</td>
+            </tr>
+          </th:block>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- /.card -->
+
+
+  </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+
+
+  <div th:replace="common/footer.html"></div>
+
+</div>
+
+
+</body>
+</html>

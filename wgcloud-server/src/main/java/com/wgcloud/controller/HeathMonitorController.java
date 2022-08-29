@@ -1,10 +1,12 @@
 package com.wgcloud.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.wgcloud.common.BaseOp;
 import com.wgcloud.entity.HeathMonitor;
 import com.wgcloud.service.GroupInfoService;
 import com.wgcloud.service.HeathMonitorService;
 import com.wgcloud.service.LogInfoService;
+import com.wgcloud.task.ScheduledTask;
 import com.wgcloud.util.PageUtil;
 import com.wgcloud.util.staticvar.StaticKeys;
 import org.apache.commons.lang3.StringUtils;
@@ -93,6 +95,29 @@ public class HeathMonitorController {
         return "redirect:/heathMonitor/list";
     }
 
+    /**
+     * 测试心跳监控信息
+     *
+     * @param HeathMonitor
+     * @param model
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "test")
+    public String testHeathMonitor(HeathMonitor HeathMonitor, Model model, HttpServletRequest request) {
+        try {
+
+           Boolean ret =  ScheduledTask.execHeathMonitorTask(null,HeathMonitor);
+            HeathMonitor.setHeathStatus("code="+HeathMonitor.getHeathStatus() + ";   "+(ret?"脚本验证成功":"脚本验证失败"));
+            model.addAttribute("heathMonitor", HeathMonitor);
+
+
+        } catch (Exception e) {
+
+        }
+        return "heath/view";
+    }
+
 
     /**
      * 查看该心跳监控
@@ -174,6 +199,26 @@ public class HeathMonitorController {
         }
 
         return "redirect:/heathMonitor/list";
+    }
+
+    /**
+     * 根据条件查询心跳监控列表
+     *
+     * @param model
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "fun")
+    public String funView( Model model) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        try {
+            model.addAttribute("page", BaseOp.getFuns());
+        } catch (Exception e) {
+            logger.error("查询服务心跳监控错误", e);
+            logInfoService.save("查询心跳监控错误", e.toString(), StaticKeys.LOG_ERROR);
+
+        }
+        return "heath/fun";
     }
 
 

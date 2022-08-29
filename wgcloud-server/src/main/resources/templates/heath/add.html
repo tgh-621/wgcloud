@@ -40,7 +40,7 @@
   <div class="col-md-10">
     <div class="card card-primary">
       <div class="card-header">
-        <h3 class="card-title">添加服务接口检测(响应状态码200即为成功)</h3>
+        <h3 class="card-title">添加服务接口检测</h3>
           <div class=" float-sm-right">
               <a th:href="@{'/heathMonitor/list'}">返回</a>
           </div>
@@ -64,7 +64,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="fromPwd"><font color="red">*</font>服务接口URL（必须为http或https）</label>
+                    <label for="fromPwd"><font color="red">*</font>服务接口URL（必须为http或https）<a target="_blank" href="/wgcloud/heathMonitor/fun">替换参数查看</a></label>
                     <input type="text" autocomplete="off"  th:value="${heathMonitor.heathUrl}" class="validate[required,maxSize[255]] form-control" name="heathUrl" id="heathUrl" placeholder="如http://192.168.1.1:9999/wgcloud/heath">
                 </div>
                 <div class="form-group">
@@ -105,6 +105,7 @@
             <!-- /.card-body -->
 
             <div class="card-footer">
+                <button type="button" th:onclick="test()"  class="btn btn-primary btn-sm">测试</button>
                 <button type="submit" class="btn btn-primary btn-sm">保存</button>
                 <button type="button"  th:onclick="goback()"  class="btn bg-gradient-danger btn-sm">返回</button>
             </div>
@@ -136,6 +137,15 @@
     });
     function goback() {
         window.location.href = "/wgcloud/heathMonitor/list";
+    }
+    function test() {
+        var u =  $('#form1').attr('action');
+        $('#form1').attr('target','_blank');
+        $('#form1').attr('action','/wgcloud/heathMonitor/test');
+        $('#form1').submit();
+        $('#form1').attr('target','_self');
+        $('#form1').attr('action',u);
+
     }
 </script>
 </body>
