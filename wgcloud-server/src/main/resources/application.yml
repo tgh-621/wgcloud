@@ -14,11 +14,11 @@ spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
     #url: jdbc:mysql://172.27.11.236:3306/wgcloud?characterEncoding=utf-8&characterSetResults=utf8&autoReconnect=true&useSSL=false&allowMultiQueries=true
-   url: jdbc:mysql://172.20.189.116:3306/wgcloud?characterEncoding=utf-8&characterSetResults=utf8&autoReconnect=true&useSSL=false&allowMultiQueries=true
+    url: jdbc:mysql://172.20.189.116:3306/wgcloud?characterEncoding=utf-8&characterSetResults=utf8&autoReconnect=true&useSSL=false&allowMultiQueries=true
     #url: jdbc:mysql://mysql.bigdatacd.com:3306/bdcloud?characterEncoding=utf-8&characterSetResults=utf8&autoReconnect=true&useSSL=false&allowMultiQueries=true
-   # username: root
+    #username: root
     username: app
-    password: '@Test123'
+    #password: '@Test123'
     #password: Kk!123456
     password: '2022@Cyy0826'
     # hikari连接池的参数 相关设置
