@@ -56,7 +56,13 @@ public class HeathMonitorController {
     public String heathMonitorList(HeathMonitor heathMonitor, Model model) {
         Map<String, Object> params = new HashMap<String, Object>();
         try {
-            params.put("heathGroup",heathMonitor.getHeathGroup());
+            if(heathMonitor.getHeathGroup() == null || heathMonitor.getHeathGroup().isEmpty()){
+
+            }
+            else{
+                params.put("heathGroup",heathMonitor.getHeathGroup());
+            }
+
             PageInfo pageInfo = heathMonitorService.selectByParams(params, heathMonitor.getPage(), heathMonitor.getPageSize());
             PageUtil.initPageNumber(pageInfo, model);
             model.addAttribute("pageUrl", "/heathMonitor/list?1=1");

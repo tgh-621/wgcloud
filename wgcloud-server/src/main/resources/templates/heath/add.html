@@ -56,7 +56,7 @@
                 </div>
                 <div class="form-group">
                     <label>服务分类</label>
-                    <select class="validate[required] form-control"  name="heathGroup" id="heathGroup">
+                    <select class=" form-control"  name="heathGroup" id="heathGroup">
                         <option     value="" >无</option>
                         <th:block th:each="item1,iterStat1 : ${group}">
                             <option th:selected="${heathMonitor.heathGroup==item1.name}"    th:value="${item1.name}" th:text="${item1.name}" >aa</option>
