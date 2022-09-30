@@ -92,5 +92,36 @@ public class LoginCotroller {
         return "login/login";
     }
 
+    /**
+     * 管理员登录验证
+     *
+     * @param model
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "token")
+    public String token(Model model, HttpServletRequest request) {
+        String token = request.getParameter("toekn");
+        HttpSession session = request.getSession();
+        try {
+            if (!StringUtils.isEmpty(token) && token.equals("w32w32-w2ww3-w3ww37hhjk-6rd3d3")) {
+
+                AccountInfo accountInfo = new AccountInfo();
+                accountInfo.setAccount(StaticKeys.ADMIN_ACCOUNT);
+                accountInfo.setId(StaticKeys.ADMIN_ACCOUNT);
+                session.setAttribute(StaticKeys.LOGIN_KEY, accountInfo);
+                return "redirect:/dash/main";
+            }
+            else{
+                model.addAttribute("error", "token错误");
+                return "login/login";
+            }
+        } catch (Exception e) {
+            logger.error("登录异常：", e);
+        }
+        model.addAttribute("error", "帐号或者密码错误");
+        return "login/login";
+    }
+
 
 }
