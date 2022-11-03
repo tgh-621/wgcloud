@@ -229,11 +229,19 @@ public class ScheduledTask {
             }
             ScriptEngineManager manager = new ScriptEngineManager();
             ScriptEngine engine = manager.getEngineByName("javascript");
-            engine.eval("function heathTest (html, json,jsona) {" +
+            engine.eval("function checkHour(str,d){\n" +
+                    "    var dt = new Date(str).getTime();\n" +
+                    "    var nw = new Date().getTime();\n" +
+                    "    return nw - dt < d*1000*60*60;\n" +
+                    "};" +
+                    "function heathTest (html, json,jsona) {" +
                     js+
-                    "return true; }");
+                    "return true; };");
             Invocable jsInvoke = (Invocable) engine;
             Object res = jsInvoke.invokeFunction("heathTest", new Object[]{html,json,jsona});
+
+
+
             if(res instanceof Boolean){
                 return (Boolean)res;
             }
