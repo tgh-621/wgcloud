@@ -233,10 +233,10 @@ public class ScheduledTask {
                     "    var dt = new Date(str).getTime();\n" +
                     "    var nw = new Date().getTime();\n" +
                     "    return nw - dt < d*1000*60*60;\n" +
-                    "};" +
-                    "function heathTest (html, json,jsona) {" +
-                    js+
-                    "return true; };");
+                    "};\n" +
+                    "function heathTest (html, json,jsona) {\n" +
+                    js+"\n"+
+                    "return true; };\n");
             Invocable jsInvoke = (Invocable) engine;
             Object res = jsInvoke.invokeFunction("heathTest", new Object[]{html,json,jsona});
 

@@ -489,7 +489,7 @@ public class WarnMailUtil {
 
         try {
             Jsoup.connect("https://oapi.dingtalk.com/robot/send?access_token=85ea59b57b828abda9a3a8227755af000d73111aede0f5c355831307790f494f").ignoreContentType(true).ignoreHttpErrors(true).
-                    requestBody("{\"msgtype\": \"text\",\"text\": {\"content\":\"大数据平台:"+mailTitle.replace("\"","\\\"").replace("<br/>","\r\n")+"\r\n"+mailContent.replace("\"","\\\"").replace("<br/>","\r\n")+"\"}}")
+                    requestBody("{\"msgtype\": \"text\",\"text\": {\"content\":\"大数据平台:"+mailTitle.replace("\"","\\\"").replace("<br/>","\r\n")+"\r\n"+mailContent.substring(0,1000).replace("\"","\\\"").replace("<br/>","\r\n")+"\"}}")
                     .header("Content-Type", "application/json")
                     .post();
         }
