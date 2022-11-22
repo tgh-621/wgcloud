@@ -364,6 +364,7 @@ public class ScheduledTask {
             if (heathMonitorAllList.size() > 0) {
                 for(int i = 0;i < heathMonitorAllList.size();i++){
                     HeathMonitor h =  heathMonitorAllList.get(i);
+                    if(!"运行".equals(h.getScheduled()))continue;
                     Boolean bRet = false;
                     String error = "";
                     try {

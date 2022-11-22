@@ -18,10 +18,11 @@
 		<result column="REQUEST_TYPE" property="requestType" jdbcType="VARCHAR" />
 		<result column="COOKIE_INFO" property="cookieInfo" jdbcType="VARCHAR" />
 		<result column="HEATH_GROUP" property="heathGroup" jdbcType="VARCHAR" />
+		<result column="SCHEDULED" property="scheduled" jdbcType="VARCHAR" />
 	</resultMap>
 
 	<sql id="tableColumnList">
-		ID,APP_NAME, HEATH_URL,HEATH_STATUS,CREATE_TIME,HEADER_PARAM,REQUEST_PARAM,LAST_RESULT,TEST_SCRIPT,LAST_STATUS,FRONT_ID,LAST_TIME,PARAM_TYPE,REQUEST_TYPE,COOKIE_INFO,HEATH_GROUP
+		ID,APP_NAME, HEATH_URL,HEATH_STATUS,CREATE_TIME,HEADER_PARAM,REQUEST_PARAM,LAST_RESULT,TEST_SCRIPT,LAST_STATUS,FRONT_ID,LAST_TIME,PARAM_TYPE,REQUEST_TYPE,COOKIE_INFO,HEATH_GROUP,SCHEDULED
 	</sql>
 
 	<sql id="queryByParams">
@@ -80,7 +81,8 @@
 			<if test="paramType != null" >PARAM_TYPE,</if>
 			<if test="requestType != null" >REQUEST_TYPE,</if>
 			<if test="cookieInfo != null" >COOKIE_INFO,</if>
-			<if test="heathGroup != null" >HEATH_GROUP</if>
+			<if test="heathGroup != null" >HEATH_GROUP,</if>
+			<if test="scheduled != null" >SCHEDULED</if>
 
     	</trim>
     	<trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -99,17 +101,18 @@
 			<if test="paramType != null" >#{paramType},</if>
 			<if test="requestType != null" >#{requestType},</if>
 			<if test="cookieInfo != null" >#{cookieInfo},</if>
-			<if test="heathGroup != null" >#{heathGroup}</if>
+			<if test="heathGroup != null" >#{heathGroup},</if>
+			<if test="scheduled != null" >#{scheduled}</if>
     	</trim>
 	</insert>
 
 	<insert id="insertList" parameterType="java.util.List" >
 		INSERT INTO HEATH_MONITOR (ID,APP_NAME,HEATH_URL,HEATH_STATUS,CREATE_TIME,HEADER_PARAM,
-		REQUEST_PARAM,LAST_RESULT,TEST_SCRIPT,LAST_STATUS,FRONT_ID,LAST_TIME,PARAM_TYPE,REQUEST_TYPE,COOKIE_INFO,HEATH_GROUP)  VALUES
+		REQUEST_PARAM,LAST_RESULT,TEST_SCRIPT,LAST_STATUS,FRONT_ID,LAST_TIME,PARAM_TYPE,REQUEST_TYPE,COOKIE_INFO,HEATH_GROUP,SCHEDULED)  VALUES
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.id},#{item.appName},#{item.heathUrl},#{item.heathStatus},#{item.createTime},
 			#{item.headerParam},#{item.requestParam},#{item.lastResult},#{item.testScript},#{item.lastStatus},#{item.frontId},#{item.lastTime},#{item.paramType},#{item.requestType},
-			#{item.cookieInfo},#{item.heathGroup})
+			#{item.cookieInfo},#{item.heathGroup},#{item.scheduled})
 		</foreach>
 	</insert>
 
@@ -161,6 +164,9 @@
 				</if>
 				<if test="item.heathGroup != null" >
 					HEATH_GROUP=#{item.heathGroup}
+				</if>
+				<if test="item.scheduled != null" >
+					SCHEDULED=#{item.scheduled}
 				</if>
 			</set>
 			WHERE ID = #{item.id}
@@ -214,6 +220,9 @@
 			</if>
 			<if test="heathGroup != null" >
 				HEATH_GROUP=#{heathGroup}
+			</if>
+			<if test="scheduled != null" >
+				SCHEDULED=#{scheduled}
 			</if>
 		</set>
 		WHERE ID = #{id}

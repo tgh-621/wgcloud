@@ -102,6 +102,13 @@
                     <label >前置服务名称</label>
                     <input type="text" autocomplete="off"  th:value="${heathMonitor.frontId}" class="validate[maxSize[50]] form-control" name="frontId" id="frontId" placeholder="依赖的应用服务监控">
                 </div>
+                <div class="form-group">
+                    <label><font color="red">*</font>是否调度</label>
+                    <select class="validate[required] form-control"  name="scheduled" id="scheduled">
+                        <option th:selected="${heathMonitor.requestType=='运行'}"    value="运行" >运行</option>
+                        <option th:selected="${heathMonitor.requestType=='暂停'}"    value="暂停" >暂停</option>
+                    </select>
+                </div>
 
             </div>
             <!-- /.card-body -->

@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -113,7 +114,9 @@ public class HeathMonitorController {
     public String testHeathMonitor(HeathMonitor HeathMonitor, Model model, HttpServletRequest request) {
         try {
 
-           Boolean ret =  ScheduledTask.execHeathMonitorTask(null,HeathMonitor);
+            Map<String, Object> params = new HashMap<>();
+            List<HeathMonitor> heathMonitorAllList = heathMonitorService.selectAllByParams(params);
+            Boolean ret =  ScheduledTask.execHeathMonitorTask(heathMonitorAllList,HeathMonitor);
             HeathMonitor.setHeathStatus("code="+HeathMonitor.getHeathStatus() + ";   "+(ret?"脚本验证成功":"脚本验证失败"));
             model.addAttribute("heathMonitor", HeathMonitor);
 

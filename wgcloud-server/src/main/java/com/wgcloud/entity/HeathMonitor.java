@@ -73,6 +73,7 @@ public class HeathMonitor extends BaseEntity {
     private Integer exeState = 0;
 
     private String heathGroup;
+    private String  scheduled;
 
 
     public String getAppName() {
@@ -201,5 +202,13 @@ public class HeathMonitor extends BaseEntity {
 
     public void setHeathGroup(String heathGroup) {
         this.heathGroup = heathGroup;
+    }
+
+    public String getScheduled() {
+        return scheduled;
+    }
+
+    public void setScheduled(String scheduled) {
+        this.scheduled = scheduled;
     }
 }
