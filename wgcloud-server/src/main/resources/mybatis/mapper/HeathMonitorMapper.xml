@@ -163,7 +163,7 @@
 					TEST_SCRIPT= #{item.testScript},
 				</if>
 				<if test="item.heathGroup != null" >
-					HEATH_GROUP=#{item.heathGroup}
+					HEATH_GROUP=#{item.heathGroup},
 				</if>
 				<if test="item.scheduled != null" >
 					SCHEDULED=#{item.scheduled}
@@ -219,7 +219,7 @@
 				TEST_SCRIPT= #{testScript},
 			</if>
 			<if test="heathGroup != null" >
-				HEATH_GROUP=#{heathGroup}
+				HEATH_GROUP=#{heathGroup},
 			</if>
 			<if test="scheduled != null" >
 				SCHEDULED=#{scheduled}
