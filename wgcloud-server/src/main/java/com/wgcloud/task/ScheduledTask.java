@@ -9,6 +9,7 @@ import com.wgcloud.entity.*;
 import com.wgcloud.mapper.*;
 import com.wgcloud.service.*;
 import com.wgcloud.util.DateUtil;
+import com.wgcloud.util.MD5Utils;
 import com.wgcloud.util.RestUtil;
 import com.wgcloud.util.jdbc.ConnectionUtil;
 import com.wgcloud.util.jdbc.RDSConnection;
@@ -293,6 +294,21 @@ public class ScheduledTask {
             requestParams = BaseOp.replaceVal(requestParams);
             if(curHeathMonitor.getParamType().equals("application/x-www-form-urlencoded")){
                 Map<String,String> params =  JSON.parseObject(requestParams,new TypeReference<HashMap<String,String>>() {});
+                Set<String> keys =  params.keySet();
+                for(String key:keys){
+                    String value = params.get(key);
+                    int index = value.indexOf("$MD5(");
+                    if(index >= 0){
+                        //提取MD5
+                        try {
+                            int endpos = value.indexOf(')', index + 5);
+                            String md5 = value.substring(index + 5, endpos);
+                            params.put(key, MD5Utils.GetMD5Code(md5).toUpperCase());
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
                 connection.data(params);
             }
             else{
@@ -307,6 +323,7 @@ public class ScheduledTask {
         else{
             connection.method(Connection.Method.GET);
         }
+        connection.ignoreHttpErrors(true).ignoreContentType(true).validateTLSCertificates(false);
         Connection.Response response = connection.execute();
         int code =  response.statusCode();
         curHeathMonitor.setHeathStatus(""+code);

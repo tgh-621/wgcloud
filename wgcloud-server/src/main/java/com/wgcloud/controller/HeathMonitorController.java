@@ -122,7 +122,7 @@ public class HeathMonitorController {
 
 
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
         return "heath/view";
     }

@@ -13,6 +13,8 @@ public class BaseOp {
     private static String NOW = "${now}";
     private static String NOWHOUR = "${nowhour}";
     private static String NOWHOURY = "${nowhourY}";
+    private static String DAYTOHOUR = "${daytohour}";
+
     private static String TODAY = "${today}";
 
     private static String TOMORROW="${tomorrow}";
@@ -36,6 +38,7 @@ public class BaseOp {
 
     static SimpleDateFormat simpleDateFormat =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     static SimpleDateFormat dateFormatDay =new SimpleDateFormat("yyyy-MM-dd");
+    static SimpleDateFormat dateFormatHourEx =new SimpleDateFormat("yyyyMMddHH");
     static SimpleDateFormat dateFormatHour =new SimpleDateFormat("yyyy-MM-dd HH:00:00");
     static SimpleDateFormat dateFormatHourY =new SimpleDateFormat("yyyy/MM/dd HH:00:00");
     static SimpleDateFormat dateFormatMonth =new SimpleDateFormat("yyyy-MM-01");
@@ -85,6 +88,7 @@ public class BaseOp {
             lFunInfo.add(new FunInfos("${now}","当前时刻：yyyy-MM-dd HH:mm:ss",""));
             lFunInfo.add(new FunInfos("${nowhour}","当前时刻（到小时）：yyyy-MM-dd HH:00:00",""));
             lFunInfo.add(new FunInfos("${nowhourY}","当前时刻(到小时)：yyyy/MM/dd HH:00:00",""));
+            lFunInfo.add(new FunInfos("${daytohour}","当前时刻(到小时)：yyyyMMddHH",""));
             lFunInfo.add(new FunInfos("${today}","今天：yyyy-MM-dd",""));
             lFunInfo.add(new FunInfos("${tomorrow}","明天：yyyy-MM-dd",""));
             lFunInfo.add(new FunInfos("${nhour}","下一小时：yyyy-MM-dd HH:00:00",""));
@@ -102,6 +106,7 @@ public class BaseOp {
 
             lFunInfo.add(new FunInfos("${GO+-N}","前后N天：yyyy-MM-dd",""));
             lFunInfo.add(new FunInfos("${HY+-N}","前后N小时:yyyy/MM/dd HH:00:00",""));
+            lFunInfo.add(new FunInfos("$MD5(加密文本)","加密文本处填入对应字符串",""));
 
         }
         return lFunInfo;
@@ -182,7 +187,7 @@ public class BaseOp {
 
         rsql = rsql.replace(LHOUR,dateFormatHour.format(beforeOneHourToNowDate(now)));
         rsql = rsql.replace(LTODAY,dateFormatDay.format(beforeOneDayToNowDate(now)));
-
+        rsql = rsql.replace(DAYTOHOUR,dateFormatHourEx.format(now));
 
         rsql = rsql.replace(CMONTH,dateFormatMonth.format((now)));
         //有bug，后面改 目前这儿用不上

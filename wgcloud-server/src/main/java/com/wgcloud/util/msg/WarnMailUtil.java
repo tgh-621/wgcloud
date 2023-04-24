@@ -6,10 +6,12 @@ import com.wgcloud.entity.*;
 import com.wgcloud.service.LogInfoService;
 import com.wgcloud.util.DateUtil;
 import com.wgcloud.util.staticvar.StaticKeys;
+import org.apache.catalina.connector.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.HtmlEmail;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -488,13 +490,16 @@ public class WarnMailUtil {
     public static String sendMail(String mails, String mailTitle, String mailContent) {
 
         try {
-            Jsoup.connect("https://oapi.dingtalk.com/robot/send?access_token=85ea59b57b828abda9a3a8227755af000d73111aede0f5c355831307790f494f").ignoreContentType(true).ignoreHttpErrors(true).
-                    requestBody("{\"msgtype\": \"text\",\"text\": {\"content\":\"大数据平台:"+mailTitle.replace("\"","\\\"").replace("<br/>","\r\n")+"\r\n"+mailContent.substring(0,1000).replace("\"","\\\"").replace("<br/>","\r\n")+"\"}}")
+            Document es =  Jsoup.connect("https://oapi.dingtalk.com/robot/send?access_token=85ea59b57b828abda9a3a8227755af000d73111aede0f5c355831307790f494f").ignoreContentType(true).ignoreHttpErrors(true).
+                    requestBody("{\"msgtype\": \"text\",\"text\": {\"content\":\"大数据平台:"+mailTitle.replace("\"","\\\"").replace("<br/>","\r\n")+"\r\n"+mailContent.substring(0,Math.min(500,mailContent.length())).replace("\"","\\\"").replace("<br/>","\r\n")+"\"}}")
                     .header("Content-Type", "application/json")
                     .post();
+            logger.info("钉钉推送结果",es.html());
+            return "success";
         }
         catch (Exception e){
             e.printStackTrace();
+            logger.error("发送钉钉推送错误：", e);
         }
         try {
             HtmlEmail email = new HtmlEmail();
