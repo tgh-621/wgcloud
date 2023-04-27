@@ -28,6 +28,8 @@ public class BaseOp {
     private static String NMONTH="${nmonth}";
     private static String LMONTH="${lmonth}";
 
+    private static String CMONTHL="${cmonthL}";
+
 
     private static String T1_TODAY = "${t1_today}";
     private static String T1_TOMORROW="${t1_tomorrow}";
@@ -35,6 +37,7 @@ public class BaseOp {
 
     private static String NDAYAGO = "${GO";
     private static String NHOURAGOY = "${HY";
+    private static String NHOURAGOM = "${HM";
 
     static SimpleDateFormat simpleDateFormat =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     static SimpleDateFormat dateFormatDay =new SimpleDateFormat("yyyy-MM-dd");
@@ -42,6 +45,7 @@ public class BaseOp {
     static SimpleDateFormat dateFormatHour =new SimpleDateFormat("yyyy-MM-dd HH:00:00");
     static SimpleDateFormat dateFormatHourY =new SimpleDateFormat("yyyy/MM/dd HH:00:00");
     static SimpleDateFormat dateFormatMonth =new SimpleDateFormat("yyyy-MM-01");
+    static SimpleDateFormat dateFormatMonthL =new SimpleDateFormat("yyyy-MM");
 
     static SimpleDateFormat mDateFormatDay =new SimpleDateFormat("yyyyMMdd");
 
@@ -99,12 +103,14 @@ public class BaseOp {
             lFunInfo.add(new FunInfos("${cmonth}","本月：yyyy-MM-01",""));
             lFunInfo.add(new FunInfos("${nmonth}","下月：yyyy-MM-01",""));
             lFunInfo.add(new FunInfos("${lmonth}","上月：yyyy-MM-01",""));
+            lFunInfo.add(new FunInfos("${cmonthL}","本月：yyyy-MM",""));
 
             lFunInfo.add(new FunInfos("${t1_today}","今天：yyyyMMdd",""));
             lFunInfo.add(new FunInfos("${t1_tomorrow}","明天：yyyyMMdd",""));
             lFunInfo.add(new FunInfos("${t1_ltoday}","昨天：yyyyMMdd",""));
 
             lFunInfo.add(new FunInfos("${GO+-N}","前后N天：yyyy-MM-dd",""));
+            lFunInfo.add(new FunInfos("${HM+-N}","前后N小时：yyyy-MM-dd HH:00:00",""));
             lFunInfo.add(new FunInfos("${HY+-N}","前后N小时:yyyy/MM/dd HH:00:00",""));
             lFunInfo.add(new FunInfos("$MD5(加密文本)","加密文本处填入对应字符串",""));
 
@@ -165,9 +171,34 @@ public class BaseOp {
                         e.printStackTrace();
                     }
                     if (rsql.charAt(posGo + 4) == '+') {
-                        rsql = rsql.replace(rsql.substring(posGo, posEGO + 1), dateFormatHourY.format(afterNDayToNowDate(now, v)));
+                        rsql = rsql.replace(rsql.substring(posGo, posEGO + 1), dateFormatHourY.format(afterOneHourToNowDate(now, v)));
                     } else if (rsql.charAt(posGo + 4) == '-') {
                         rsql = rsql.replace(rsql.substring(posGo, posEGO + 1), dateFormatHourY.format(beforeOneHourToNowDate(now, v)));
+                    }
+                    else{
+                        break;
+                    }
+                }
+
+            }
+        }
+        posGo =1;
+        while(posGo > 0){
+            posGo = rsql.indexOf(NHOURAGOM);
+            if (posGo > 0) {
+                int posEGO = rsql.indexOf('}', posGo);
+                if (posEGO > 0) {
+                    String val = rsql.substring(posGo + 5, posEGO);
+                    Integer v = 0;
+                    try {
+                        v = Integer.parseInt(val);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    if (rsql.charAt(posGo + 4) == '+') {
+                        rsql = rsql.replace(rsql.substring(posGo, posEGO + 1), dateFormatHour.format(afterOneHourToNowDate(now, v)));
+                    } else if (rsql.charAt(posGo + 4) == '-') {
+                        rsql = rsql.replace(rsql.substring(posGo, posEGO + 1), dateFormatHour.format(beforeOneHourToNowDate(now, v)));
                     }
                     else{
                         break;
@@ -190,6 +221,7 @@ public class BaseOp {
         rsql = rsql.replace(DAYTOHOUR,dateFormatHourEx.format(now));
 
         rsql = rsql.replace(CMONTH,dateFormatMonth.format((now)));
+        rsql = rsql.replace(CMONTHL,dateFormatMonthL.format((now)));
         //有bug，后面改 目前这儿用不上
         rsql = rsql.replace(NMONTH,dateFormatMonth.format(afterOneMonthToNowDate(now)));
         rsql = rsql.replace(LMONTH,dateFormatMonth.format(beforeOneMonthToNowDate(now)));

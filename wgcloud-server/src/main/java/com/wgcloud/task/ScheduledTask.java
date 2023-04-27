@@ -217,6 +217,29 @@ public class ScheduledTask {
 
     }
 
+    private static String  getJsFun(){
+        String jsFun1 = "function parseZH(date){\n" +
+                "var curr = new Date();\n" +
+                "var yearPos =  date.indexOf('年');\n" +
+                "var monthPos = date.indexOf('月');\n" +
+                "var dayPos = date.indexOf('日');\n" +
+                "var hourPos = date.indexOf('时');\n" +
+                "var mutPos = date.indexOf('分');\n" +
+                "var sPos = date.indexOf('秒');\n" +
+                "var start = 0;\n" +
+                "if(yearPos > 0){curr.setUTCFullYear(date.substr(start,yearPos-start));start = yearPos+1;}\n" +
+                "if(monthPos > 0){curr.setMonth(date.substr(start,monthPos-start)-1);start = monthPos+1;}\n" +
+                "if(dayPos > 0){curr.setDate(date.substr(start,dayPos-start));start = dayPos+1;}\n" +
+                "if(hourPos > 0){curr.setHours(date.substr(start,hourPos-start));start = hourPos+1;}else{curr.setHours(0);}\n" +
+                "if(mutPos > 0){curr.setMinutes(date.substr(start,mutPos-start));start = mutPos+1;}else{curr.setMinutes(0);}\n" +
+                "if(sPos > 0){curr.setSeconds(date.substr(start,sPos-start));start = sPos+1;}else{curr.setSeconds(0);}\n" +
+                "curr.setMilliseconds(0);\n" +
+                "return curr;\n" +
+                "};\n";
+        return jsFun1;
+
+    }
+
     private static Boolean heathMonitorExeJs(String js,String html,HeathMonitor heathMonitor){
         try {
             JSONObject json = null;
@@ -235,6 +258,7 @@ public class ScheduledTask {
                     "    var nw = new Date().getTime();\n" +
                     "    return nw - dt < d*1000*60*60;\n" +
                     "};\n" +
+                    getJsFun()+
                     "function heathTest (html, json,jsona) {\n" +
                     js+"\n"+
                     "return true; };\n");
