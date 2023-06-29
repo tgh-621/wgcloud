@@ -34,6 +34,9 @@ public class BatchData {
     //内存监控
     public static List<MemState> MEM_STATE_LIST = Collections.synchronizedList(new ArrayList<MemState>());
 
+    //内存监控
+    public static List<NetConnetInfo> NET_STATE_LIST = Collections.synchronizedList(new ArrayList<NetConnetInfo>());
+
     //网络吞吐监控，暂没用
     public static List<NetIoState> NETIO_STATE_LIST = Collections.synchronizedList(new ArrayList<NetIoState>());
 

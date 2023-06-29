@@ -4,15 +4,17 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 
 
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "base")
 public class CommonConfig {
-
 
     private String serverUrl = "";
 
@@ -29,7 +31,19 @@ public class CommonConfig {
     }
 
     public String getBindIp() {
-        return getHostName();
+        return getIp();
+    }
+    private String getIp(){
+        try {
+            String ip =SigarUtil.getMainIp();
+            if(ip != null)
+                return ip;
+            else
+                return getHostName();
+        }catch (Exception e){
+            e.printStackTrace();
+            return getHostName();
+        }
     }
 
     public void setBindIp(String bindIp) {

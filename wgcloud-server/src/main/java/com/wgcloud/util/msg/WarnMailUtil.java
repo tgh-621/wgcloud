@@ -4,6 +4,7 @@ import com.wgcloud.common.ApplicationContextHelper;
 import com.wgcloud.config.MailConfig;
 import com.wgcloud.entity.*;
 import com.wgcloud.service.LogInfoService;
+import com.wgcloud.task.ScheduledTask;
 import com.wgcloud.util.DateUtil;
 import com.wgcloud.util.staticvar.StaticKeys;
 import org.apache.catalina.connector.Response;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @version v2.3
@@ -77,6 +79,57 @@ public class WarnMailUtil {
 
 
         return true;
+    }
+
+
+    public static boolean sendNetWarnInfo(NetConnetInfo netConnetInfo) {
+        if (StaticKeys.mailSet == null) {
+            return false;
+        }
+        MailSet mailSet = StaticKeys.mailSet;
+        if (StaticKeys.NO_SEND_WARN.equals(mailConfig.getAllWarnMail()) || StaticKeys.NO_SEND_WARN.equals(mailConfig.getMemWarnMail())) {
+            return false;
+        }
+        //处于学习阶段,不管
+        if(netConnetInfo.getXuexi())return  true;
+
+        try {
+            List<NetConnetItem> items = netConnetInfo.getmList();
+            //开始通知问题
+            String title = "未知IP连接，请尽快确认";
+            String commContent = "";
+
+            for (NetConnetItem item : items) {
+                String local = item.getLocalAddress() + ":" + item.getLocalPort();
+                String remoet = item.getRemoteAddress() + ":" + item.getRemotePort();
+                if (ScheduledTask.whiteIP.contains(local) || ScheduledTask.whiteIP.contains(remoet)) continue;
+                //更新一波看看
+                ScheduledTask.updateWhiteIP();
+                if (ScheduledTask.whiteIP.contains(local) || ScheduledTask.whiteIP.contains(remoet)) continue;
+
+                //开始通知问题
+
+                commContent += "本地：" + local + " <---> 远端：" + remoet + "<br/>";
+
+            }
+            if(commContent.length() > 10){
+                commContent += "请尽快确认是否为异常链接";
+                //发送邮件
+                sendMail(mailSet.getToMail(), title, commContent);
+                //记录发送信息
+                logInfoService.save(title, commContent, StaticKeys.LOG_ERROR);
+            }
+
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            logger.error("发送网络警邮件失败：", e);
+            logInfoService.save("发送网络告警邮件错误", e.toString(), StaticKeys.LOG_ERROR);
+        }
+
+
+
+        return false;
     }
 
     /**
@@ -494,12 +547,12 @@ public class WarnMailUtil {
                     requestBody("{\"msgtype\": \"text\",\"text\": {\"content\":\"大数据平台:"+mailTitle.replace("\"","\\\"").replace("<br/>","\r\n")+"\r\n"+mailContent.substring(0,Math.min(500,mailContent.length())).replace("\"","\\\"").replace("<br/>","\r\n")+"\"}}")
                     .header("Content-Type", "application/json")
                     .post();
-            logger.info("钉钉推送结果",es.html());
+            logger.info("钉钉推送结果"+es.html());
             return "success";
         }
         catch (Exception e){
             e.printStackTrace();
-            logger.error("发送钉钉推送错误：", e);
+            logger.error("发送钉钉推送错误：",e);
         }
         try {
             HtmlEmail email = new HtmlEmail();

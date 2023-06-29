@@ -68,6 +68,7 @@ public class AgentController {
         JSONObject systemInfo = agentJsonObject.getJSONObject("systemInfo");
         JSONObject netIoState = agentJsonObject.getJSONObject("netIoState");
         JSONArray deskStateList = agentJsonObject.getJSONArray("deskStateList");
+        JSONObject netConnetInfo = agentJsonObject.getJSONObject("netConnetInfo");
 
         try {
 
@@ -84,7 +85,6 @@ public class AgentController {
                     WarnMailUtil.sendCpuWarnInfo(bean);
                 };
                 executor.execute(runnable);
-
             }
             if (memState != null) {
                 MemState bean = new MemState();
@@ -92,6 +92,15 @@ public class AgentController {
                 BatchData.MEM_STATE_LIST.add(bean);
                 Runnable runnable = () -> {
                     WarnMailUtil.sendWarnInfo(bean);
+                };
+                executor.execute(runnable);
+            }
+            if (netConnetInfo != null) {
+                NetConnetInfo bean = new NetConnetInfo();
+                BeanUtil.copyProperties(netConnetInfo, bean);
+                BatchData.NET_STATE_LIST.add(bean);
+                Runnable runnable = () -> {
+                    WarnMailUtil.sendNetWarnInfo(bean);
                 };
                 executor.execute(runnable);
             }

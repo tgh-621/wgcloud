@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wgcloud.mapper.NetStateMapper">
+	<resultMap id="resultMap" type="com.wgcloud.entity.NetState">
+		<id column="ID" property="id" jdbcType="INTEGER" />
+		<result column="BIP" property="bip" jdbcType="CHAR" />
+		<result column="BPORT" property="bport" jdbcType="INTEGER" />
+		<result column="BR" property="br" jdbcType="INTEGER" />
+		<result column="TM" property="tm" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<sql id="tableColumnList">
+		ID,BIP, BPORT,BR,TM
+	</sql>
+	
+
+	<insert id="save" parameterType="com.wgcloud.entity.NetState">
+		INSERT INTO HOST_IPAGENT
+    	<trim prefix="(" suffix=")" suffixOverrides="," >
+      		<if test="bip != null" > BIP,</if>
+      		<if test="bport != null">BPORT,</if>
+      		<if test="br != null">BR</if>
+    	</trim>
+    	<trim prefix="values (" suffix=")" suffixOverrides="," >
+      		<if test="bip != null" >#{bip},</if>
+      		<if test="bport != null" >#{bport},</if>
+			<if test="br != null" >#{br}</if>
+    	</trim>
+	</insert>
+	
+	
+	<insert id="insertList" parameterType="java.util.List" >
+	      INSERT INTO HOST_IPAGENT (BIP,BPORT,BR)  VALUES
+	      <foreach collection="list" item="item" index="index" separator="," >  
+	        (#{item.bip},#{item.bport},#{item.br})
+	      </foreach>
+	 </insert>
+	
+	
+	  <select id="selectAllData" resultMap="resultMap">
+		SELECT
+		<include refid="tableColumnList" />
+		FROM HOST_IPAGENT t
+	</select>
+	
+
+	
+</mapper>

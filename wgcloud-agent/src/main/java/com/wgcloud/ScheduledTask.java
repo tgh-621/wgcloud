@@ -36,6 +36,10 @@ public class ScheduledTask {
 
     private Logger logger = LoggerFactory.getLogger(ScheduledTask.class);
     public static List<AppInfo> appInfoList = Collections.synchronizedList(new ArrayList<AppInfo>());
+
+    public static int xiCount = 20;
+
+    public static int curCount = 0;
     @Autowired
     private RestUtil restUtil;
     @Autowired
@@ -53,6 +57,7 @@ public class ScheduledTask {
      * 60秒后执行，每隔90秒执行, 单位：ms。
      */
     @Scheduled(initialDelay = 59 * 1000L, fixedRate = 90 * 1000)
+   // @Scheduled(initialDelay =  1000L, fixedRate = 90 * 1000)
     public void minTask() {
         List<AppInfo> APP_INFO_LIST_CP = new ArrayList<AppInfo>();
         APP_INFO_LIST_CP.addAll(appInfoList);
@@ -76,6 +81,19 @@ public class ScheduledTask {
             // 网络流量信息
             NetIoState netIoState = SigarUtil.net();
             netIoState.setCreateTime(t);
+
+            //获取网络连接
+            NetConnetInfo netConnetInfo = new NetConnetInfo();
+            netConnetInfo.setmList(SigarUtil.getNetConnet());
+            netConnetInfo.setCreateTime(t);
+            curCount++;
+            if(curCount < xiCount){
+                netConnetInfo.setXuexi(true);
+            }
+            else{
+                netConnetInfo.setXuexi(false);
+            }
+
             // 系统负载信息
             SysLoadState sysLoadState = SigarUtil.getLoadState(systemInfo);
             if (sysLoadState != null) {
@@ -92,6 +110,9 @@ public class ScheduledTask {
             }
             if (sysLoadState != null) {
                 jsonObject.put("sysLoadState", sysLoadState);
+            }
+            if (netConnetInfo != null) {
+                jsonObject.put("netConnetInfo", netConnetInfo);
             }
             if (systemInfo != null) {
                 if (memState != null) {

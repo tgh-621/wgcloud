@@ -2,6 +2,7 @@ package com.wgcloud.task;
 
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.ConcurrentHashSet;
 import com.alibaba.fastjson.*;
 import com.wgcloud.common.BaseOp;
 import com.wgcloud.config.CommonConfig;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -95,6 +97,9 @@ public class ScheduledTask {
     ConnectionUtil connectionUtil;
     @Autowired
     CommonConfig commonConfig;
+
+    @Autowired
+    NetStateMapper netStateMapper;
 
     /**
      * 20秒后执行
@@ -409,8 +414,11 @@ public class ScheduledTask {
                     Boolean bRet = false;
                     String error = "";
                     try {
+                        logger.info("开始检测接口:"+h.getHeathUrl());
                          bRet =  execHeathMonitorTask(heathMonitorAllList, h);
+                        logger.info("接口检测结果:"+bRet);
                     }catch (Exception ex){
+                        logger.info("接口检测出错:"+ex.getMessage());
                         ex.printStackTrace();
                         error = (ex.getMessage());
                         h.setHeathStatus("-2");
@@ -569,6 +577,47 @@ public class ScheduledTask {
         }
     }
 
+
+    public static Set<String> whiteIP = new ConcurrentHashSet<>();
+    private static Map<String,Integer> cntIP = new ConcurrentHashMap<>();
+
+    private static NetStateMapper pNetStateMapper = null;
+
+    public static void updateWhiteIP(){
+        whiteIP.clear();
+        List<NetState> list =  pNetStateMapper.selectAllData();
+        for(NetState netState : list){
+            whiteIP.add(netState.getBip()+":"+netState.getBport());
+        }
+
+    }
+
+    private  void addIpPort(String ip,Long port){
+        String ipPort = ip+":"+port;
+        Integer ct = cntIP.get(ipPort);
+        if(ct == null){
+            ct = 1;
+        }
+        else{
+            ct++;
+        }
+        if(ct > 10){
+            whiteIP.add(ipPort);
+            cntIP.remove(ipPort);
+            //更新数据库
+            NetState netState = new NetState();
+            netState.setBip(ip);
+            netState.setBport(port.intValue());
+            netState.setBr(2);
+            netStateMapper.save(netState);
+
+        }
+        else{
+            cntIP.put(ipPort,ct);
+        }
+    }
+
+
     /**
      * 30秒后执行，之后每隔1分钟执行, 单位：ms。
      * 批量提交数据
@@ -595,6 +644,43 @@ public class ScheduledTask {
                 BatchData.MEM_STATE_LIST.clear();
                 memStateService.saveRecord(MEM_STATE_LIST);
             }
+            //更新ip和端口的白名单
+            if(BatchData.NET_STATE_LIST.size() > 0){
+                try {
+                    if(pNetStateMapper == null){
+                        pNetStateMapper = netStateMapper;
+                        updateWhiteIP();
+                    }
+
+                    List<NetConnetInfo> NET_STATE_LIST = new ArrayList<NetConnetInfo>();
+                    NET_STATE_LIST.addAll(BatchData.NET_STATE_LIST);
+                    BatchData.NET_STATE_LIST.clear();
+                    for (NetConnetInfo netConnetInfo : NET_STATE_LIST) {
+                        if (netConnetInfo.getmList() == null || netConnetInfo.getmList().isEmpty() ||
+                                (!netConnetInfo.getXuexi())) {
+                            continue;
+                        }
+                        List<NetConnetItem> items = netConnetInfo.getmList();
+                        for (NetConnetItem item : items) {
+                            String local = item.getLocalAddress() + ":" + item.getLocalPort();
+                            String remoet = item.getRemoteAddress() + ":" + item.getRemotePort();
+                            if (whiteIP.contains(local) || whiteIP.contains(remoet)) {
+                                cntIP.remove(local);
+                                cntIP.remove(remoet);
+                                continue;
+                            }
+                            addIpPort(item.getRemoteAddress(), item.getRemotePort());
+                            addIpPort(item.getLocalAddress(), item.getLocalPort());
+
+                        }
+                    }
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+
+            }
+
             if (BatchData.NETIO_STATE_LIST.size() > 0) {
                 List<NetIoState> NETIO_STATE_LIST = new ArrayList<NetIoState>();
                 NETIO_STATE_LIST.addAll(BatchData.NETIO_STATE_LIST);
@@ -735,10 +821,11 @@ public class ScheduledTask {
         WarnPools.clearOldData();//清空发告警邮件的记录
         String nowTime = DateUtil.getCurrentDateTime();
         //15天前时间
-        String thrityDayBefore = DateUtil.getDateBefore(nowTime, 30);
+        String thrityDayBefore = DateUtil.getDateBefore(nowTime, 300);
         Map<String, Object> paramsDel = new HashMap<String, Object>();
         try {
             paramsDel.put(StaticKeys.SEARCH_END_TIME, thrityDayBefore);
+            cntIP.clear();
             //执行删除操作begin
             if (paramsDel.get(StaticKeys.SEARCH_END_TIME) != null && !"".equals(paramsDel.get(StaticKeys.SEARCH_END_TIME))) {
                 cpuStateMapper.deleteByAccountAndDate(paramsDel);//删除cpu监控信息

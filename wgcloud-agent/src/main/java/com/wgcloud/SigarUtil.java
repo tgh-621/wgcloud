@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -73,6 +75,56 @@ public class SigarUtil {
         System.out.println("用户的主目录：    " + props.getProperty("user.home"));
         System.out.println("用户的当前工作目录：    " + props.getProperty("user.dir"));
     }*/
+
+    public static String getMainIp(){
+        List<NetConnetItem> list =  getNetConnet();
+        Map<String,Integer> map = new HashMap<>();
+        for(NetConnetItem item:list){
+            String ip = item.getLocalAddress();
+            Integer ct =  map.get(ip);
+            if(ct == null)map.put(ip,1);
+            else map.put(ip,ct+1);
+        }
+        String ip = null;
+        int max = 0;
+        for(Map.Entry<String,Integer> entry : map.entrySet()){
+            if(entry.getValue() > max){
+                ip = entry.getKey();
+                max = entry.getValue();
+            }
+        }
+        return ip;
+    }
+    public static List<NetConnetItem>  getNetConnet(){
+        List<NetConnetItem> list = new ArrayList<NetConnetItem>();
+        int flags = NetFlags.CONN_TCP|NetFlags.CONN_UDP | NetFlags.CONN_SERVER | NetFlags.CONN_CLIENT;
+        try {
+            NetConnection[] netConnectionList = sigar.getNetConnectionList(flags);
+            for (NetConnection netConnection : netConnectionList) {
+                String local = netConnection.getLocalAddress();
+                String remote = netConnection.getRemoteAddress();
+                if(local.startsWith("::ffff:"))local = local.substring(7);
+                if(remote.startsWith("::ffff:"))remote = remote.substring(7);
+                if(local.equals("0.0.0.0") ||
+                        local.equals("127.0.0.1") ||
+                        local.equals("::") ||
+                        local.equals("::1") ||
+                        remote.equals("0.0.0.0") ||
+                        remote.startsWith("255.255."))continue;
+                NetConnetItem item = new NetConnetItem();
+                item.setLocalAddress(local);
+                item.setLocalPort(netConnection.getLocalPort());
+                item.setRemoteAddress(remote);
+                item.setRemotePort(netConnection.getRemotePort());
+                list.add(item);
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return list;
+
+    }
 
 
     /**
