@@ -100,6 +100,10 @@ public class WarnMailUtil {
             String commContent = "";
 
             for (NetConnetItem item : items) {
+                if(item.getRemotePort() == 123){
+                    //更新时间
+                    continue;
+                }
                 String local = item.getLocalAddress() + ":" + item.getLocalPort();
                 String remoet = item.getRemoteAddress() + ":" + item.getRemotePort();
                 if (ScheduledTask.whiteIP.contains(local) || ScheduledTask.whiteIP.contains(remoet)) continue;

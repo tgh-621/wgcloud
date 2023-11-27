@@ -113,6 +113,8 @@ public class BaseOp {
             lFunInfo.add(new FunInfos("${HM+-N}","前后N小时：yyyy-MM-dd HH:00:00",""));
             lFunInfo.add(new FunInfos("${HY+-N}","前后N小时:yyyy/MM/dd HH:00:00",""));
             lFunInfo.add(new FunInfos("$MD5(加密文本)","加密文本处填入对应字符串",""));
+            lFunInfo.add(new FunInfos("${c_xxxxxx}","取依赖服务的cookie的key为xxxxxx对应值","前提是已经配置依赖服务"));
+            lFunInfo.add(new FunInfos("${p_xx.xx.xx}","取依赖服务的返回json数据key为xx.xx.xx对应值","前提是已经配置依赖服务"));
 
         }
         return lFunInfo;

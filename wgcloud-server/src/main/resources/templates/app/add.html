@@ -64,11 +64,12 @@
                         <option value="">请选择</option>
                         <option value="1">进程ID号</option>
                         <option value="2">PID文件路径</option>
+                        <option value="3">进程ID获取命令</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label><font color="red">*</font>进程ID号或PID文件路径</label>
-                    <input type="text" autocomplete="off"  th:value="${appInfo.appPid}" class="validate[required,maxSize[200]] form-control" name="appPid" id="appPid" placeholder="输入进程ID号如9639或PID文件完整路径如/apache-activemq-5.15.11/data/activemq.pid">
+                    <input type="text" autocomplete="off"  th:value="${appInfo.appPid}" class="validate[required,maxSize[200]] form-control" name="appPid" id="appPid" placeholder="输入进程ID号如9639或PID文件完整路径如/apache-activemq-5.15.11/data/activemq.pid或进程关键信息mysqld">
                 </div>
                 <div class="form-group">
                     <label><font color="red">*</font>进程名称</label>

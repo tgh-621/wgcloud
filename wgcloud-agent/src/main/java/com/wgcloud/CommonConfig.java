@@ -33,11 +33,15 @@ public class CommonConfig {
     public String getBindIp() {
         return getIp();
     }
+    private static  String wIp = null;
     private String getIp(){
+        if(wIp != null)return wIp;
         try {
             String ip =SigarUtil.getMainIp();
-            if(ip != null)
-                return ip;
+            if(ip != null){
+                wIp = getHostName()+"_"+ip;
+                return wIp;
+            }
             else
                 return getHostName();
         }catch (Exception e){
@@ -61,7 +65,7 @@ public class CommonConfig {
     public static String getHostNameForLiunx() {
         try {
             return (InetAddress.getLocalHost()).getHostName();
-        } catch (UnknownHostException uhe) {
+        } catch (Exception uhe) {
             String host = uhe.getMessage(); // host = "hostname: hostname"
             if (host != null) {
                 int colon = host.indexOf(':');

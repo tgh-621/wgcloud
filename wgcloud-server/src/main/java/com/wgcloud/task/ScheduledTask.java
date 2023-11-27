@@ -286,6 +286,16 @@ public class ScheduledTask {
 
     }
 
+    private static String  getJsonValue(JSONObject json,String path){
+        if(path == null || path.isEmpty()) return "";
+        String[] keys =  path.split("\\.");
+        for(int i = 0; i < keys.length-1;i++){
+            json = json.getJSONObject(keys[i]);
+            if(json == null)return "";
+        }
+        return json.getString(keys[keys.length-1]);
+    }
+
     public static Boolean execHeathMonitorTask(List<HeathMonitor> heathMonitorAllList,HeathMonitor curHeathMonitor) throws IOException {
         if(curHeathMonitor.getExeState() !=0)return "200".equals(curHeathMonitor.getHeathStatus());
         HeathMonitor frontMonitor = null;
@@ -306,14 +316,51 @@ public class ScheduledTask {
         Connection connection = Jsoup.connect(url);
         connection.timeout(120000).ignoreContentType(true).ignoreHttpErrors(true);
         Map<String,String> cookies = new HashMap<>();
+        JSONObject jsonObject = new JSONObject();
         if(frontMonitor != null){
             //cookie带走
              cookies =  JSON.parseObject(frontMonitor.getCookieInfo(),new TypeReference<HashMap<String,String>>() {});
              connection.cookies(cookies);
+             String body =  frontMonitor.getLastResult();
+             try{
+                 jsonObject = JSON.parseObject(body);
+             }catch (Exception e){
+
+             }
+
         }
         String requestHeaders = curHeathMonitor.getHeaderParam();
         if(!StringUtils.isEmpty(requestHeaders)){
             Map<String,String> headers =  JSON.parseObject(requestHeaders,new TypeReference<HashMap<String,String>>() {});
+            //数据替换
+            for (Map.Entry<String,String> entry:headers.entrySet()){
+                String value = entry.getValue();
+                if(value != null && value.indexOf("${c_")>= 0){
+                    //cookie替换
+                    int start = value.indexOf("${c_");
+                    String value1 = cookies.get(value.substring(4+start,value.length()-1));
+                    if(start > 0){
+                        entry.setValue(value.substring(0,start)+value1);
+                    }
+                    else{
+                        entry.setValue(value1);
+                    }
+
+                } else if(value != null && value.indexOf("${p_") >= 0 && jsonObject != null && jsonObject.size() > 0){
+                    //param替换
+                    int start = value.indexOf("${p_");
+                    String key = value.substring(4+start,value.length()-1);
+                    String value1 = getJsonValue(jsonObject,key);
+                    if(start > 0){
+                        entry.setValue(value.substring(0,start)+value1);
+                    }
+                    else{
+                        entry.setValue(value1);
+                    }
+                }
+
+
+            }
             connection.headers(headers);
         }
         connection.header("Content-Type",curHeathMonitor.getParamType());
@@ -336,6 +383,17 @@ public class ScheduledTask {
                         }catch (Exception e){
                             e.printStackTrace();
                         }
+                    }
+                    else if(value != null && value.startsWith("${c_")){
+                        //cookie替换
+                        value = cookies.get(value.substring(4,value.length()-1));
+                        params.put(key,value);
+
+                    } else if(value != null && value.startsWith("${p_") && jsonObject != null && jsonObject.size() > 0){
+                        //param替换
+                        String k = value.substring(4,value.length()-1);
+                        value = getJsonValue(jsonObject,k);
+                        params.put(key,value);
                     }
                 }
                 connection.data(params);
